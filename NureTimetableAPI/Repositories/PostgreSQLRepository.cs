@@ -272,6 +272,97 @@ public class PostgreSQLRepository(NureTimetableDbContext dbContext) : IPostgreSQ
 
     #region DTO models getters
 
+    public async Task<List<GroupsFacultyDto>?> GetGroupsFacultiesAsync()
+    {
+        var faculties = await _dbContext.GroupsFaculty
+            .Include(f => f.Directions)
+                .ThenInclude(d => d.Groups)
+            .ToListAsync();
+
+        if (faculties == null)
+        {
+            return null;
+        }
+
+        var facultiesDto = new List<GroupsFacultyDto>();
+
+        foreach (var faculty in faculties)
+        {
+            var directions = new List<DirectionDto>();
+
+            foreach (var direction in faculty.Directions)
+            {
+                directions.Add(new DirectionDto
+                {
+                    Id = direction.DirectionId,
+                    ShortName = direction.ShortName,
+                    FullName = direction.FullName,
+                    Groups = direction.Groups.Select(g => new MinimalGroup
+                    {
+                        Id = g.GroupId,
+                        Name = g.Name,
+                    }).ToList(),
+                });
+            }
+
+            facultiesDto.Add(new GroupsFacultyDto
+            {
+                Id = faculty.FacultyId,
+                ShortName = faculty.ShortName,
+                FullName = faculty.FullName,
+                Directions = directions,
+            });
+        }
+
+        return facultiesDto;
+    }
+
+    public async Task<List<TeachersFacultyDto>?> GetTeachersFacultiesAsync()
+    {
+        var faculties = await _dbContext.TeachersFaculties
+            .Include(f => f.Departments)
+            .ThenInclude(d => d.Teachers)
+            .ToListAsync();
+
+        if (faculties == null)
+        {
+            return null;
+        }
+
+        var facultiesDto = new List<TeachersFacultyDto>();
+
+        foreach (var faculty in faculties)
+        {
+            var departments = new List<DepartmentDto>();
+
+            foreach (var department in faculty.Departments)
+            {
+                departments.Add(new DepartmentDto
+                {
+                    Id = department.DepartmentId,
+                    ShortName = department.ShortName,
+                    FullName = department.FullName,
+                    Teachers = department.Teachers.Select(t => new MinimalTeacher
+                    {
+                        Id = t.TeacherId,
+                        ShortName = t.ShortName,
+                        FullName = t.FullName,
+                    }).ToList(),
+                });
+            }
+
+            facultiesDto.Add(new TeachersFacultyDto
+            {
+                Id = faculty.FacultyId,
+                ShortName = faculty.ShortName,
+                FullName = faculty.FullName,
+                Departments = departments,
+            });
+        }
+
+        return facultiesDto;
+    }
+
     public async Task<List<GroupDto>?> GetGroupsAsync()
     {
         var faculties = await _dbContext.GroupsFaculty
@@ -382,7 +473,7 @@ public class PostgreSQLRepository(NureTimetableDbContext dbContext) : IPostgreSQ
                 Id = building.BuildingId,
                 ShortName = building.ShortName,
                 FullName = building.FullName,
-                Auditories = building.Auditories.Select(a => new AuditoryDto
+                Auditories = building.Auditories.Select(a => new MinimalAuditory
                 {
                     Id = a.AuditoryId,
                     Name = a.ShortName,
@@ -440,6 +531,101 @@ public class PostgreSQLRepository(NureTimetableDbContext dbContext) : IPostgreSQ
         }
 
         return auditories;
+    }
+
+    public async Task<GroupDto?> GetGroupAsync(int id)
+    {
+       var group = await _dbContext.Groups.Where(g => g.GroupId == id)
+           .Include(g => g.Direction)
+           .ThenInclude(d => d.GroupsFaculty)
+           .FirstOrDefaultAsync();
+
+        if (group == null)
+        {
+            return null;
+        }
+
+        return new GroupDto
+        {
+            Id = group.GroupId,
+            Name = group.Name,
+            Direction = new Entity
+            {
+                Id = group.Direction.DirectionId,
+                ShortName = group.Direction.ShortName,
+                FullName = group.Direction.FullName,
+            },
+            Faculty = new Entity
+            {
+                Id = group.Direction.GroupsFaculty.FacultyId,
+                ShortName = group.Direction.GroupsFaculty.ShortName,
+                FullName = group.Direction.GroupsFaculty.FullName,
+            },
+        };
+    }
+
+    public async Task<TeacherDto?> GetTeacherAsync(int id)
+    {
+        var teacher = await _dbContext.Teachers.Where(t => t.TeacherId == id)
+            .Include(t => t.Department)
+            .ThenInclude(d => d.TeachersFaculty)
+            .FirstOrDefaultAsync();
+
+        if (teacher == null)
+        {
+            return null;
+        }
+
+        return new TeacherDto
+        {
+            Id = teacher.TeacherId,
+            ShortName = teacher.ShortName,
+            FullName = teacher.FullName,
+            Faculty = new Entity
+            {
+                Id = teacher.Department.TeachersFaculty.FacultyId,
+                ShortName = teacher.Department.TeachersFaculty.ShortName,
+                FullName = teacher.Department.TeachersFaculty.FullName,
+            },
+            Department = new Entity
+            {
+                Id = teacher.Department.DepartmentId,
+                ShortName = teacher.Department.ShortName,
+                FullName = teacher.Department.FullName,
+            },
+        };
+    }
+
+    public async Task<AuditoryDto?> GetAuditoryAsync(int id)
+    {
+        var auditory = await _dbContext.Auditories.Where(b => b.AuditoryId == id)
+            .Include(a => a.Building)
+            .Include(a => a.AuditoryTypes)
+            .FirstOrDefaultAsync();
+
+        if (auditory == null)
+        {
+            return null;
+        }
+
+        return new AuditoryDto
+        {
+            Id = auditory.AuditoryId,
+            Name = auditory.ShortName,
+            Floor = auditory.Floor,
+            HasPower = auditory.HasPower,
+            Building = new MinimalBuilding
+            {
+                Id = auditory.Building.BuildingId,
+                ShortName = auditory.Building.ShortName,
+                FullName = auditory.Building.FullName,
+            },
+            AuditoryTypes = auditory.AuditoryTypes.Select(at => new AuditoryTypeDto
+            {
+                Id = at.AuditoryTypeId,
+                Name = at.Name,
+            }).ToList(),
+        };
     }
 
     #endregion

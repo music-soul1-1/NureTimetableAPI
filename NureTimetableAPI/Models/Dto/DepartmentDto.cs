@@ -1,12 +1,12 @@
 ﻿namespace NureTimetableAPI.Models.Dto;
 
-public class BuildingDto
+public class DepartmentDto
 {
-    public string Id { get; set; } = "";
+    public int Id { get; set; }
 
     public string ShortName { get; set; } = "";
 
     public string FullName { get; set; } = "";
 
-    public List<MinimalAuditory> Auditories { get; set; } = [];
+    public List<MinimalTeacher> Teachers { get; set; } = [];
 }

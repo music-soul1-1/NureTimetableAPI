@@ -30,4 +30,32 @@ public class TeachersController : ControllerBase
 
         return Ok(teachers);
     }
+
+    [HttpGet]
+    [Route("Faculties")]
+    public async Task<IActionResult> GetTeachersFaculties()
+    {
+        var faculties = await _postgreRepository.GetTeachersFacultiesAsync();
+
+        if (faculties == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(faculties);
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetTeacher(int id)
+    {
+        var teacher = await _postgreRepository.GetTeacherAsync(id);
+
+        if (teacher == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(teacher);
+    }
 }
