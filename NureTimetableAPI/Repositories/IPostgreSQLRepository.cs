@@ -79,6 +79,18 @@ public interface IPostgreSQLRepository
     #region Dto models getters
 
     /// <summary>
+    /// Gets groups faculties from the database.
+    /// </summary>
+    /// <returns></returns>
+    public Task<List<GroupsFacultyDto>?> GetGroupsFacultiesAsync();
+
+    /// <summary>
+    /// Gets teachers faculties from the database.
+    /// </summary>
+    /// <returns></returns>
+    public Task<List<TeachersFacultyDto>?> GetTeachersFacultiesAsync();
+
+    /// <summary>
     /// Gets buildings from the database.
     /// </summary>
     /// <returns></returns>
@@ -101,6 +113,29 @@ public interface IPostgreSQLRepository
     /// </summary>
     /// <returns></returns>
     public Task<List<AuditoryDto>?> GetAuditoriesAsync();
+
+    // By ID getters
+
+    /// <summary>
+    /// Gets a group by its <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Task<GroupDto?> GetGroupAsync(int id);
+
+    /// <summary>
+    /// Gets a teacher by its <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Task<TeacherDto?> GetTeacherAsync(int id);
+
+    /// <summary>
+    /// Gets an auditory by its <paramref name="id"/>.
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
+    public Task<AuditoryDto?> GetAuditoryAsync(int id);
 
     #endregion
 

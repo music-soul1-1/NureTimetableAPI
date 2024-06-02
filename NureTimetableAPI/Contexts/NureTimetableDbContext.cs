@@ -56,6 +56,12 @@ public class NureTimetableDbContext(DbContextOptions<NureTimetableDbContext> opt
             .HasMany(a => a.AuditoryTypes)
             .WithMany(at => at.Auditories);
 
+        modelBuilder.Entity<AuditoryDomain>()
+            .HasOne(a => a.Building)
+            .WithMany(b => b.Auditories)
+            .HasForeignKey(a => a.BuildingId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.Entity<Specialty>()
             .HasKey(s => s.Id);
 

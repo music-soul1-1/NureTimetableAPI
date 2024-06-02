@@ -16,4 +16,8 @@ public class AuditoryDomain
     public bool HasPower { get; set; }
 
     public List<AuditoryTypeDomain> AuditoryTypes { get; set; } = [];
+
+    public Guid BuildingId { get; set; }
+
+    public BuildingDomain Building { get; set; } = new BuildingDomain();
 }

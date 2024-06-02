@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NureTimetableAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class mssqlonprem_migration_701 : Migration
+    public partial class mssqlonprem_migration_544 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,16 +75,17 @@ namespace NureTimetableAPI.Migrations
                     ShortName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Floor = table.Column<int>(type: "int", nullable: true),
                     HasPower = table.Column<bool>(type: "bit", nullable: false),
-                    BuildingDomainId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    BuildingId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Auditories", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Auditories_Buildings_BuildingDomainId",
-                        column: x => x.BuildingDomainId,
+                        name: "FK_Auditories_Buildings_BuildingId",
+                        column: x => x.BuildingId,
                         principalTable: "Buildings",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -154,7 +155,7 @@ namespace NureTimetableAPI.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Specialties",
+                name: "Specialty",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -165,9 +166,9 @@ namespace NureTimetableAPI.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Specialties", x => x.Id);
+                    table.PrimaryKey("PK_Specialty", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Specialties_Directions_DirectionId",
+                        name: "FK_Specialty_Directions_DirectionId",
                         column: x => x.DirectionId,
                         principalTable: "Directions",
                         principalColumn: "Id",
@@ -215,16 +216,16 @@ namespace NureTimetableAPI.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Groups_Specialties_SpecialtyId",
+                        name: "FK_Groups_Specialty_SpecialtyId",
                         column: x => x.SpecialtyId,
-                        principalTable: "Specialties",
+                        principalTable: "Specialty",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Auditories_BuildingDomainId",
+                name: "IX_Auditories_BuildingId",
                 table: "Auditories",
-                column: "BuildingDomainId");
+                column: "BuildingId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_AuditoryDomainAuditoryTypeDomain_AuditoryTypesId",
@@ -252,8 +253,8 @@ namespace NureTimetableAPI.Migrations
                 column: "SpecialtyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Specialties_DirectionId",
-                table: "Specialties",
+                name: "IX_Specialty_DirectionId",
+                table: "Specialty",
                 column: "DirectionId");
 
             migrationBuilder.CreateIndex(
@@ -281,7 +282,7 @@ namespace NureTimetableAPI.Migrations
                 name: "AuditoryTypes");
 
             migrationBuilder.DropTable(
-                name: "Specialties");
+                name: "Specialty");
 
             migrationBuilder.DropTable(
                 name: "Departments");

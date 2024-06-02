@@ -46,7 +46,7 @@ namespace NureTimetableAPI.Migrations
                     b.Property<int>("AuditoryId")
                         .HasColumnType("int");
 
-                    b.Property<Guid?>("BuildingDomainId")
+                    b.Property<Guid>("BuildingId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("Floor")
@@ -61,7 +61,7 @@ namespace NureTimetableAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BuildingDomainId");
+                    b.HasIndex("BuildingId");
 
                     b.ToTable("Auditories");
                 });
@@ -257,7 +257,7 @@ namespace NureTimetableAPI.Migrations
 
                     b.HasIndex("DirectionId");
 
-                    b.ToTable("Specialties");
+                    b.ToTable("Specialty");
                 });
 
             modelBuilder.Entity("NureTimetableAPI.Models.Teacher", b =>
@@ -304,9 +304,13 @@ namespace NureTimetableAPI.Migrations
 
             modelBuilder.Entity("NureTimetableAPI.Models.Domain.AuditoryDomain", b =>
                 {
-                    b.HasOne("NureTimetableAPI.Models.Domain.BuildingDomain", null)
+                    b.HasOne("NureTimetableAPI.Models.Domain.BuildingDomain", "Building")
                         .WithMany("Auditories")
-                        .HasForeignKey("BuildingDomainId");
+                        .HasForeignKey("BuildingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Building");
                 });
 
             modelBuilder.Entity("NureTimetableAPI.Models.Domain.DepartmentDomain", b =>

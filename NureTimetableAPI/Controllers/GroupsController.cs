@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using NureTimetableAPI.Models;
-using Microsoft.Extensions.DependencyInjection;
 using NureTimetableAPI.Repositories;
 
 
@@ -38,7 +35,7 @@ public class GroupsController : ControllerBase
     [Route("Faculties")]
     public async Task<IActionResult> GetFaculties()
     {
-        var faculties = await _postgreRepository.GetGroupsFacultyDomainsAsync();
+        var faculties = await _postgreRepository.GetGroupsFacultiesAsync();
 
         if (faculties == null)
         {
@@ -46,5 +43,19 @@ public class GroupsController : ControllerBase
         }
 
         return Ok(faculties);
+    }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetGroup(int id)
+    {
+        var group = await _postgreRepository.GetGroupAsync(id);
+
+        if (group == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(group);
     }
 }

@@ -37,4 +37,18 @@ public class AuditoriesController(ILogger<AuditoriesController> logger, IPostgre
 
         return Ok(buildings);
     }
+
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<IActionResult> GetAuditory(int id)
+    {
+        var auditory = await _postgreRepository.GetAuditoryAsync(id);
+
+        if (auditory == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(auditory);
+    }
 }
