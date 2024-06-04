@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace NureTimetableAPI.Migrations
 {
     /// <inheritdoc />
-    public partial class mssqlonprem_migration_544 : Migration
+    public partial class mssqlonprem_migration_693 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
