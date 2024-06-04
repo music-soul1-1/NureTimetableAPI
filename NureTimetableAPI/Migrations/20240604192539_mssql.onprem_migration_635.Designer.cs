@@ -12,8 +12,8 @@ using NureTimetableAPI.Contexts;
 namespace NureTimetableAPI.Migrations
 {
     [DbContext(typeof(NureTimetableDbContext))]
-    [Migration("20240602105345_mssql.onprem_migration_544")]
-    partial class mssqlonprem_migration_544
+    [Migration("20240604192539_mssql.onprem_migration_635")]
+    partial class mssqlonprem_migration_635
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

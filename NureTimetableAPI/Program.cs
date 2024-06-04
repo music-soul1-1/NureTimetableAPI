@@ -28,7 +28,7 @@ builder.Services.AddScoped<IPostgreSQLRepository, PostgreSQLRepository>();
 
 builder.Services.AddDbContext<NureTimetableDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+    options.UseSqlServer(builder.Configuration.GetSection("ConnectionStringProduction").Value);
 });
 
 var app = builder.Build();
@@ -64,8 +64,8 @@ app.UseHangfireDashboard("/hangfire",
                     [
                         new BasicAuthAuthorizationUser
                         {
-                            Login = builder.Configuration.GetSection("Hangfire:Auth")["Login"],
-                            PasswordClear = builder.Configuration.GetSection("Hangfire:Auth")["Password"],
+                            Login = builder.Configuration.GetSection("HangfireAuthLogin").Value,
+                            PasswordClear = builder.Configuration.GetSection("HangfireAuthPassword").Value,
                         }
                     ],
                 }
