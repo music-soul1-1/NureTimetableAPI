@@ -11,6 +11,7 @@
 - :cloud: Hosted on [Monsterasp.net](https://www.monsterasp.net/)
 
 
-[Get Started](#home)
+[Get Started](#nuretimetableapi)
 
-![color](#660fb8)
+<!-- Background color -->
+![color](#a0a8fd)
