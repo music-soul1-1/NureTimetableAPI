@@ -1,6 +1,5 @@
 ﻿using NureTimetableAPI.Models;
 using NureTimetableAPI.Models.Cist;
-using NureTimetableAPI.Models.Dto;
 using NureTimetableAPI.Types;
 
 namespace NureTimetableAPI.Repositories;
@@ -36,11 +35,7 @@ public interface ICistRepository
 
 
     // Schedule for group, teacher or auditory
-    public Task<CistSchedule?> GetCistScheduleAsync(int id, EntityType type = EntityType.Group, int? startTime = null, int? endTime = null);
+    public Task<CistSchedule?> GetCistScheduleAsync(int id, EntityType type = EntityType.Group);
 
-    public Task<CistSchedule?> GetCistScheduleAsync(string name, EntityType type = EntityType.Group, int? startTime = null, int? endTime = null);
-
-    public Task<List<LessonDto>?> GetLessonsAsync(int id, EntityType type = EntityType.Group, int? startTime = null, int? endTime = null);
-
-    public Task<List<LessonDto>?> GetLessonsAsync(string name, EntityType type = EntityType.Group, int? startTime = null, int? endTime = null);
+    public Task<CistSchedule?> GetCistScheduleAsync(string name, EntityType type = EntityType.Group);
 }

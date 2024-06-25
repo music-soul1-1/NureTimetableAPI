@@ -1,9 +1,11 @@
 ﻿using Newtonsoft.Json;
+using NureTimetableAPI.Exceptions;
 using NureTimetableAPI.Helpers;
 using NureTimetableAPI.Models;
 using NureTimetableAPI.Models.Cist;
 using NureTimetableAPI.Models.Dto;
 using NureTimetableAPI.Types;
+using System.Net;
 
 namespace NureTimetableAPI.Repositories;
 
@@ -320,9 +322,9 @@ public class CistRepository() : ICistRepository
     #endregion
 
 
-    #region Schedule for group or teacher
+    #region Schedule for group, teacher or auditory
 
-    public async Task<CistSchedule?> GetCistScheduleAsync(int id, EntityType type = EntityType.Group, int? startTime = null, int? endTime = null)
+    public async Task<CistSchedule?> GetCistScheduleAsync(int id, EntityType type = EntityType.Group)
     {
         var response = await httpClient.GetAsync(
             $"https://cist.nure.ua/ias/app/tt/P_API_EVENT_JSON?timetable_id={id}" +
@@ -337,11 +339,16 @@ public class CistRepository() : ICistRepository
                 }" +
             $"&idClient=KNURESked"
             );
-        
+
+        if (response.StatusCode == HttpStatusCode.NotFound)
+        {
+            throw new NotFoundException($"Schedule for {type} with id {id} not found");
+        }
+
         return await HttpResponseDecoder.DeserializeResponse<CistSchedule>(response);
     }
 
-    public async Task<CistSchedule?> GetCistScheduleAsync(string name, EntityType type = EntityType.Group, int? startTime = null, int? endTime = null)
+    public async Task<CistSchedule?> GetCistScheduleAsync(string name, EntityType type = EntityType.Group)
     {
         switch(type)
         {
@@ -355,7 +362,7 @@ public class CistRepository() : ICistRepository
                     return null;
                 }
 
-                return await GetCistScheduleAsync(groupId.Value, type, startTime, endTime);
+                return await GetCistScheduleAsync(groupId.Value, type);
 
             case EntityType.Teacher:
                 var teachers = await GetTeachers();
@@ -367,7 +374,7 @@ public class CistRepository() : ICistRepository
                     return null;
                 }
 
-                return await GetCistScheduleAsync(teacherId.Value, type, startTime, endTime);
+                return await GetCistScheduleAsync(teacherId.Value, type);
 
             case EntityType.Auditory:
                 var auditories = await GetAuditories();
@@ -379,107 +386,10 @@ public class CistRepository() : ICistRepository
                     return null;
                 }
 
-                return await GetCistScheduleAsync(auditoryId.Value, type, startTime, endTime);
+                return await GetCistScheduleAsync(auditoryId.Value, type);
         }
 
         return null;
-    }
-
-    public async Task<List<LessonDto>?> GetLessonsAsync(int id, EntityType type = EntityType.Group, int? startTime = null, int? endTime = null)
-    {
-        var cistSchedule = await GetCistScheduleAsync(id, type, startTime, endTime);
-
-        if (cistSchedule == null)
-        {
-            Console.WriteLine($"CistSchedule for group with id {id} not found");
-            return null;
-        }
-
-        return ConvertCistScheduleToLesson(cistSchedule);
-    }
-
-    public async Task<List<LessonDto>?> GetLessonsAsync(string name, EntityType type = EntityType.Group, int? startTime = null, int? endTime = null)
-    {
-        var cistSchedule = await GetCistScheduleAsync(name, type, startTime, endTime);
-
-        if (cistSchedule == null)
-        {
-            Console.WriteLine($"CistSchedule for group with name {name} not found");
-            return null;
-        }
-
-        return ConvertCistScheduleToLesson(cistSchedule);
-    }
-
-    #endregion
-
-    #region Private methods
-
-    /// <summary>
-    /// Gets teachers from CIST.
-    /// </summary>
-    /// <returns></returns>
-    private static async Task<List<Teacher>?> FetchTeachersAsync()
-    {
-        var response = await httpClient.GetAsync("https://cist.nure.ua/ias/app/tt/P_API_PODR_JSON");
-        var jsonString = await HttpResponseDecoder.ConvertToString(response);
-
-        // Fixing Cist JSON
-        jsonString = jsonString.Remove(jsonString.Length - 2);
-        jsonString += "]}}";
-
-        var data = JsonConvert.DeserializeObject<CistTeachersStructureResponse>(jsonString);
-        List<Teacher>? teachers = [];
-
-        if (data == null)
-        {
-            return null;
-        }
-
-        foreach (var faculty in data.University.Faculties)
-        {
-            foreach (var department in faculty.Departments)
-            {
-                if (department.Teachers.Count > 0)
-                {
-                    teachers.AddRange(department.Teachers);
-                }
-                else
-                {
-                    foreach (var innerDepartment in department.Departments)
-                    {
-                        teachers.AddRange(innerDepartment.Teachers);
-                    }
-                }
-            }
-        }
-
-        return teachers;
-    }
-
-    private static List<LessonDto>? ConvertCistScheduleToLesson(CistSchedule cistSchedule)
-    {
-        var lessons = new List<LessonDto>();
-
-        foreach (var _event in cistSchedule.Events)
-        {
-            lessons.Add(new LessonDto
-            {
-                Id = _event.SubjectId,
-                Auditory = _event.Auditory,
-                Brief = cistSchedule.Subjects.Find(subject => subject.Id == _event.SubjectId)?.Brief,
-                Title = cistSchedule.Subjects.Find(subject => subject.Id == _event.SubjectId)?.Title,
-                Type = cistSchedule.Types.Find(type => _event.Type == type.Id),
-                NumberPair = _event.NumberPair,
-                StartTime = _event.StartTime,
-                EndTime = _event.EndTime,
-                Teachers = cistSchedule.Teachers.Where(teacher => _event.TeacherIds.Contains(teacher.TeacherId)).ToList(),
-                Groups = cistSchedule.Groups.Where(group => _event.GroupIds.Contains(group.GroupId)).ToList(),
-            });
-        }
-        lessons.Sort((lesson1, lesson2) => lesson1.StartTime.CompareTo(lesson2.StartTime));
-
-        return lessons;
     }
 
     #endregion

@@ -20,4 +20,8 @@ public class AuditoryDomain
     public Guid BuildingId { get; set; }
 
     public BuildingDomain Building { get; set; } = new BuildingDomain();
+
+    public ScheduleFetchLog? ScheduleFetchLog { get; set; }
+
+    public List<LessonDomain> Lessons { get; set; } = [];
 }

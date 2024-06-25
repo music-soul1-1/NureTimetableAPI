@@ -23,8 +23,8 @@ public class Event
     public string Auditory { get; set; } = "";
 
     [JsonProperty("teachers")]
-    public List<int> TeacherIds { get; set; } = new List<int>();
+    public List<int> TeacherIds { get; set; } = [];
 
     [JsonProperty("groups")]
-    public List<int> GroupIds { get; set; } = new List<int>();
+    public List<int> GroupIds { get; set; } = [];
 }

@@ -26,7 +26,7 @@ public class CistTeachersDepartment : Department
         };
     }
 
-    public DepartmentDomain ToDepartmentDomain()
+    public DepartmentDomain ToDepartmentDomain(TeachersFacultyDomain teachersFacultyDomain)
     {
         return new DepartmentDomain
         {
@@ -34,6 +34,8 @@ public class CistTeachersDepartment : Department
             ShortName = ShortName,
             FullName = FullName,
             Teachers = Teachers,
+            TeachersFaculty = teachersFacultyDomain,
+            TeachersFacultyDomainId = teachersFacultyDomain.Id,
         };
     }
 }

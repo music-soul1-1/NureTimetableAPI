@@ -12,13 +12,13 @@ public class LessonDto
 
     public int EndTime { get; set; }
 
-    public LessonType Type { get; set; } = new LessonType();
+    public LessonTypeDto Type { get; set; } = new LessonTypeDto();
 
     public int NumberPair { get; set; }
 
-    public List<Teacher> Teachers { get; set; } = new List<Teacher>();
+    public List<TeacherDto> Teachers { get; set; } = [];
 
-    public string Auditory { get; set; } = "";
+    public AuditoryDto Auditory { get; set; } = new AuditoryDto();
 
-    public List<Group> Groups { get; set; } = new List<Group>();
+    public List<GroupDto> Groups { get; set; } = [];
 }

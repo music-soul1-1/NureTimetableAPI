@@ -6,6 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>54b6329a-0540-414b-b56c-c8931e0dc1fe</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <ErrorReport>none</ErrorReport>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,9 +18,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.12" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
     <PackageReference Include="Hangfire.Dashboard.BasicAuthorization" Version="1.0.2" />
-    <PackageReference Include="Hangfire.InMemory" Version="0.9.0" />
+    <PackageReference Include="Hangfire.InMemory" Version="0.10.0" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.8.14" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.5" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Analyzers" Version="8.0.5" />

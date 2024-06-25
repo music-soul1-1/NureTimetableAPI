@@ -19,4 +19,8 @@ public class Group
     public Guid DirectionId { get; set; }
 
     public DirectionDomain Direction { get; set; } = new DirectionDomain();
+
+    public ScheduleFetchLog? ScheduleFetchLog { get; set; }
+
+    public List<LessonDomain> Lessons { get; set; } = [];
 }

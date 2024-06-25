@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddHangfire(config =>
 {
-    config.UseInMemoryStorage();
+    config.UseSqlServerStorage(builder.Configuration.GetSection("ConnectionStringProduction").Value);
     config.UseSimpleAssemblyNameTypeSerializer();
     config.UseRecommendedSerializerSettings();
 });
@@ -23,8 +23,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddCors(options => 
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowCredentials()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
 builder.Services.AddSingleton<ICistRepository, CistRepository>();
-builder.Services.AddScoped<IPostgreSQLRepository, PostgreSQLRepository>();
+builder.Services.AddScoped<ISQLRepository, SQLRepository>();
 
 builder.Services.AddDbContext<NureTimetableDbContext>(options =>
 {
@@ -48,9 +58,12 @@ app.MapControllers();
 
 //app.UseRouting();
 
+app.UseCors();
+
 app.UseHangfireDashboard("/hangfire", 
     new DashboardOptions
     {
+        AppPath = "https://music-soul1-1.github.io/NureTimetableAPI/",
         DisplayStorageConnectionString = false,
         Authorization =
         [
@@ -76,14 +89,14 @@ app.UseHangfireDashboard("/hangfire",
 
 RecurringJob.AddOrUpdate<CistGroupsStructureFetch>("cist-groups-structure-fetch",
             job => job.Execute(),
-            Cron.Daily(1, 34));
+            Cron.Weekly(DayOfWeek.Sunday, 1, 30));
 
 RecurringJob.AddOrUpdate<CistTeachersStructureFetch>("cist-teachers-structure-fetch",
             job => job.Execute(),
-            Cron.Daily(1, 35));
+            Cron.Weekly(DayOfWeek.Sunday, 1, 32));
 
 RecurringJob.AddOrUpdate<CistBuildingsStructureFetch>("cist-buildings-structure-fetch",
             job => job.Execute(),
-            Cron.Daily(1, 36));
+            Cron.Weekly(DayOfWeek.Sunday, 1, 34));
 
 app.Run();

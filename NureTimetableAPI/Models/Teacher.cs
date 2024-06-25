@@ -22,4 +22,8 @@ public class Teacher
     public Guid DepartmentId { get; set; }
 
     public DepartmentDomain Department { get; set; } = new DepartmentDomain();
+    
+    public ScheduleFetchLog? ScheduleFetchLog { get; set; }
+
+    public List<LessonDomain> Lessons { get; set; } = [];
 }

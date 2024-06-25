@@ -1,56 +1,40 @@
 ﻿using NureTimetableAPI.Models.Cist;
 using NureTimetableAPI.Models.Domain;
 using NureTimetableAPI.Models.Dto;
+using NureTimetableAPI.Types;
 
 namespace NureTimetableAPI.Repositories;
 
-public interface IPostgreSQLRepository
+public interface ISQLRepository
 {
     #region University structure
 
     #region Fetching jobs helpers methods
 
     /// <summary>
-    /// Saves groups faculties to the database.
-    /// </summary>
-    /// <param name="p_groupsFaculties"></param>
-    /// <returns></returns>
-    public Task<List<GroupsFacultyDomain>?> SaveGroupsFacultiesToDbAsync(List<CistGroupsFaculty> p_groupsFaculties);
-
-    /// <summary>
-    /// Saves teachers faculties to the database.
-    /// </summary>
-    /// <param name="p_teachersFaculties"></param>
-    /// <returns></returns>
-    public Task<List<TeachersFacultyDomain>?> SaveTeachersFacultiesToDbAsync(List<CistTeachersFaculty> p_teachersFaculties);
-
-    /// <summary>
-    /// Saves buildings to the database.
-    /// </summary>
-    /// <param name="p_buildings"></param>
-    /// <returns></returns>
-    public Task<List<BuildingDomain>?> SaveBuildingsToDbAsync(List<CistBuilding> p_buildings);
-
-    /// <summary>
     /// Performs a transaction with the database, which deletes all groups faculties and related entities, then saves new ones.
     /// </summary>
     /// <param name="p_groupsFaculties"></param>
     /// <returns></returns>
-    public Task ClearAndSaveGroupsFacultiesAsync(List<CistGroupsFaculty> p_groupsFaculties);
+    public Task FetchGroupsFacultiesAsync(List<CistGroupsFaculty> p_groupsFaculties);
 
     /// <summary>
     /// Performs a transaction with the database, which deletes all teachers faculties and related entities, then saves new ones.
     /// </summary>
     /// <param name="p_teachersFaculties"></param>
     /// <returns></returns>
-    public Task ClearAndSaveTeachersFacultiesAsync(List<CistTeachersFaculty> p_teachersFaculties);
+    public Task FetchTeachersFacultiesAsync(List<CistTeachersFaculty> p_teachersFaculties);
 
     /// <summary>
     /// Performs a transaction with the database, which deletes all buildings and related entities, then saves new ones.
     /// </summary>
     /// <param name="p_buildings"></param>
     /// <returns></returns>
-    public Task ClearAndSaveBuildingsAsync(List<CistBuilding> p_buildings);
+    public Task FetchBuildingsAsync(List<CistBuilding> p_buildings);
+
+    public Task<List<LessonDto>?> FetchSchedule(int id, CistSchedule cistSchedule, EntityType entityType, int? startTime = null, int? endTime = null);
+
+    public Task<List<LessonDto>?> FetchSchedule(string name, CistSchedule cistSchedule, EntityType entityType, int? startTime = null, int? endTime = null);
 
     #endregion
 
@@ -141,15 +125,12 @@ public interface IPostgreSQLRepository
 
     #endregion
 
-    #region Schedule
 
-    public Task<CistSchedule> GetCistScheduleAsync(int groupId, int? startTime = null, int? endTime = null);
+    #region Schedule Getters
 
-    public Task<CistSchedule> GetCistScheduleAsync(string groupName, int? startTime = null, int? endTime = null);
+    public Task<List<LessonDto>?> GetLessonsAsync(int id, EntityType entityType, int? startTime = null, int? endTime = null);
 
-    public Task<List<LessonDto>> GetLessonsAsync(int groupId, int? startTime = null, int? endTime = null);
-
-    public Task<List<LessonDto>> GetLessonsAsync(string groupName, int? startTime = null, int? endTime = null);
+    public Task<List<LessonDto>?> GetLessonsAsync(string name, EntityType entityType, int? startTime = null, int? endTime = null);
 
     #endregion
 }
