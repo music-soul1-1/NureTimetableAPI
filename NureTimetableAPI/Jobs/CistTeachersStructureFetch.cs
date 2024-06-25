@@ -2,10 +2,10 @@
 
 namespace NureTimetableAPI.Jobs;
 
-public class CistTeachersStructureFetch(ICistRepository cistRepository, IPostgreSQLRepository postgreSQLRepository)
+public class CistTeachersStructureFetch(ICistRepository cistRepository, ISQLRepository postgreSQLRepository)
 {
     private readonly ICistRepository _cistRepository = cistRepository;
-    private readonly IPostgreSQLRepository _postgreSQLRepository = postgreSQLRepository;
+    private readonly ISQLRepository _postgreSQLRepository = postgreSQLRepository;
 
     public async Task Execute()
     {
@@ -28,7 +28,7 @@ public class CistTeachersStructureFetch(ICistRepository cistRepository, IPostgre
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("Fetched teachers faculties successfully!");
 
-        await _postgreSQLRepository.ClearAndSaveTeachersFacultiesAsync(teachersFaculties);
+        await _postgreSQLRepository.FetchTeachersFacultiesAsync(teachersFaculties);
 
         Console.ResetColor();
     }

@@ -9,9 +9,9 @@ namespace NureTimetableAPI.Controllers;
 public class TeachersController : ControllerBase
 {
     private readonly ILogger<TeachersController> _logger;
-    private readonly IPostgreSQLRepository _postgreRepository;
+    private readonly ISQLRepository _postgreRepository;
 
-    public TeachersController(ILogger<TeachersController> logger, IPostgreSQLRepository postgreRepository)
+    public TeachersController(ILogger<TeachersController> logger, ISQLRepository postgreRepository)
     {
         _postgreRepository = postgreRepository;
         _logger = logger;

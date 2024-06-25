@@ -2,10 +2,10 @@
 
 namespace NureTimetableAPI.Jobs;
 
-public class CistGroupsStructureFetch(ICistRepository cistRepository, IPostgreSQLRepository postgreSQLRepository)
+public class CistGroupsStructureFetch(ICistRepository cistRepository, ISQLRepository postgreSQLRepository)
 {
     private readonly ICistRepository _cistRepository = cistRepository;
-    private readonly IPostgreSQLRepository _postgreSQLRepository = postgreSQLRepository;
+    private readonly ISQLRepository _postgreSQLRepository = postgreSQLRepository;
 
     public async Task Execute()
     {
@@ -28,7 +28,7 @@ public class CistGroupsStructureFetch(ICistRepository cistRepository, IPostgreSQ
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("Fetched groups faculties successfully!");
 
-        await _postgreSQLRepository.ClearAndSaveGroupsFacultiesAsync(groupsFaculties);
+        await _postgreSQLRepository.FetchGroupsFacultiesAsync(groupsFaculties);
         Console.WriteLine("Saved groups faculties to DB successfully!");
 
         Console.ResetColor();

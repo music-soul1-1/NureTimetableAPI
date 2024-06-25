@@ -12,13 +12,13 @@ public class CistSchedule
     public List<Event> Events { get; set; } = [];
 
     [JsonProperty("groups")]
-    public List<Group> Groups { get; set; } = [];
+    public List<CistGroup> Groups { get; set; } = [];
 
     [JsonProperty("subjects")]
     public List<Subject> Subjects { get; set; } = [];
 
     [JsonProperty("teachers")]
-    public List<Teacher> Teachers { get; set; } = [];
+    public List<CistTeacher> Teachers { get; set; } = [];
 
     [JsonProperty("types")]
     public List<LessonType> Types { get; set; } = [];

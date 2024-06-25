@@ -5,10 +5,10 @@ namespace NureTimetableAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AuditoriesController(ILogger<AuditoriesController> logger, IPostgreSQLRepository postgreRepository) : ControllerBase
+public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepository postgreRepository) : ControllerBase
 {
     private readonly ILogger<AuditoriesController> _logger = logger;
-    private readonly IPostgreSQLRepository _postgreRepository = postgreRepository;
+    private readonly ISQLRepository _postgreRepository = postgreRepository;
 
     [HttpGet]
     [Route("All")]

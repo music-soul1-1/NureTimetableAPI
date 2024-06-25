@@ -12,8 +12,8 @@ using NureTimetableAPI.Contexts;
 namespace NureTimetableAPI.Migrations
 {
     [DbContext(typeof(NureTimetableDbContext))]
-    [Migration("20240604192539_mssql.onprem_migration_635")]
-    partial class mssqlonprem_migration_635
+    [Migration("20240621113611_mssql.onprem_migration_670")]
+    partial class mssqlonprem_migration_670
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,21 @@ namespace NureTimetableAPI.Migrations
                     b.ToTable("AuditoryDomainAuditoryTypeDomain");
                 });
 
+            modelBuilder.Entity("GroupLesson", b =>
+                {
+                    b.Property<Guid>("LessonDomainId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GroupId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("LessonDomainId", "GroupId");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupLessons", (string)null);
+                });
+
             modelBuilder.Entity("NureTimetableAPI.Models.Domain.AuditoryDomain", b =>
                 {
                     b.Property<Guid>("Id")
@@ -58,6 +73,9 @@ namespace NureTimetableAPI.Migrations
                     b.Property<bool>("HasPower")
                         .HasColumnType("bit");
 
+                    b.Property<Guid?>("ScheduleFetchLogId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -65,6 +83,8 @@ namespace NureTimetableAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BuildingId");
+
+                    b.HasIndex("ScheduleFetchLogId");
 
                     b.ToTable("Auditories");
                 });
@@ -186,6 +206,79 @@ namespace NureTimetableAPI.Migrations
                     b.ToTable("GroupsFaculty");
                 });
 
+            modelBuilder.Entity("NureTimetableAPI.Models.Domain.LessonDomain", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("AuditoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Brief")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("EndTime")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GroupIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("LessonId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("NumberPair")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ScheduleLogIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StartTime")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TeacherIds")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("TypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AuditoryId");
+
+                    b.HasIndex("TypeId");
+
+                    b.ToTable("Lessons");
+                });
+
+            modelBuilder.Entity("NureTimetableAPI.Models.Domain.ScheduleFetchLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("EntityId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("LastFetchedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ScheduleFetchLogs");
+                });
+
             modelBuilder.Entity("NureTimetableAPI.Models.Domain.TeachersFacultyDomain", b =>
                 {
                     b.Property<Guid>("Id")
@@ -224,43 +317,45 @@ namespace NureTimetableAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("SpecialtyId")
+                    b.Property<Guid?>("ScheduleFetchLogId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("DirectionId");
 
-                    b.HasIndex("SpecialtyId");
+                    b.HasIndex("ScheduleFetchLogId");
 
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("NureTimetableAPI.Models.Specialty", b =>
+            modelBuilder.Entity("NureTimetableAPI.Models.LessonType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DirectionId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("IdBase")
+                        .HasColumnType("int");
+
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SpecialtyId")
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TypeId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DirectionId");
-
-                    b.ToTable("Specialty");
+                    b.ToTable("LessonTypes");
                 });
 
             modelBuilder.Entity("NureTimetableAPI.Models.Teacher", b =>
@@ -276,6 +371,9 @@ namespace NureTimetableAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid?>("ScheduleFetchLogId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ShortName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -287,7 +385,24 @@ namespace NureTimetableAPI.Migrations
 
                     b.HasIndex("DepartmentId");
 
+                    b.HasIndex("ScheduleFetchLogId");
+
                     b.ToTable("Teachers");
+                });
+
+            modelBuilder.Entity("TeacherLesson", b =>
+                {
+                    b.Property<Guid>("LessonDomainId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TeacherId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("LessonDomainId", "TeacherId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("TeacherLessons", (string)null);
                 });
 
             modelBuilder.Entity("AuditoryDomainAuditoryTypeDomain", b =>
@@ -305,6 +420,21 @@ namespace NureTimetableAPI.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("GroupLesson", b =>
+                {
+                    b.HasOne("NureTimetableAPI.Models.Group", null)
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NureTimetableAPI.Models.Domain.LessonDomain", null)
+                        .WithMany()
+                        .HasForeignKey("LessonDomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("NureTimetableAPI.Models.Domain.AuditoryDomain", b =>
                 {
                     b.HasOne("NureTimetableAPI.Models.Domain.BuildingDomain", "Building")
@@ -313,7 +443,13 @@ namespace NureTimetableAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("NureTimetableAPI.Models.Domain.ScheduleFetchLog", "ScheduleFetchLog")
+                        .WithMany()
+                        .HasForeignKey("ScheduleFetchLogId");
+
                     b.Navigation("Building");
+
+                    b.Navigation("ScheduleFetchLog");
                 });
 
             modelBuilder.Entity("NureTimetableAPI.Models.Domain.DepartmentDomain", b =>
@@ -338,6 +474,25 @@ namespace NureTimetableAPI.Migrations
                     b.Navigation("GroupsFaculty");
                 });
 
+            modelBuilder.Entity("NureTimetableAPI.Models.Domain.LessonDomain", b =>
+                {
+                    b.HasOne("NureTimetableAPI.Models.Domain.AuditoryDomain", "Auditory")
+                        .WithMany("Lessons")
+                        .HasForeignKey("AuditoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NureTimetableAPI.Models.LessonType", "Type")
+                        .WithMany("Lessons")
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Auditory");
+
+                    b.Navigation("Type");
+                });
+
             modelBuilder.Entity("NureTimetableAPI.Models.Group", b =>
                 {
                     b.HasOne("NureTimetableAPI.Models.Domain.DirectionDomain", "Direction")
@@ -346,22 +501,13 @@ namespace NureTimetableAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("NureTimetableAPI.Models.Specialty", null)
-                        .WithMany("Groups")
-                        .HasForeignKey("SpecialtyId");
-
-                    b.Navigation("Direction");
-                });
-
-            modelBuilder.Entity("NureTimetableAPI.Models.Specialty", b =>
-                {
-                    b.HasOne("NureTimetableAPI.Models.Domain.DirectionDomain", "Direction")
+                    b.HasOne("NureTimetableAPI.Models.Domain.ScheduleFetchLog", "ScheduleFetchLog")
                         .WithMany()
-                        .HasForeignKey("DirectionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ScheduleFetchLogId");
 
                     b.Navigation("Direction");
+
+                    b.Navigation("ScheduleFetchLog");
                 });
 
             modelBuilder.Entity("NureTimetableAPI.Models.Teacher", b =>
@@ -372,7 +518,33 @@ namespace NureTimetableAPI.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("NureTimetableAPI.Models.Domain.ScheduleFetchLog", "ScheduleFetchLog")
+                        .WithMany()
+                        .HasForeignKey("ScheduleFetchLogId");
+
                     b.Navigation("Department");
+
+                    b.Navigation("ScheduleFetchLog");
+                });
+
+            modelBuilder.Entity("TeacherLesson", b =>
+                {
+                    b.HasOne("NureTimetableAPI.Models.Domain.LessonDomain", null)
+                        .WithMany()
+                        .HasForeignKey("LessonDomainId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("NureTimetableAPI.Models.Teacher", null)
+                        .WithMany()
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("NureTimetableAPI.Models.Domain.AuditoryDomain", b =>
+                {
+                    b.Navigation("Lessons");
                 });
 
             modelBuilder.Entity("NureTimetableAPI.Models.Domain.BuildingDomain", b =>
@@ -400,9 +572,9 @@ namespace NureTimetableAPI.Migrations
                     b.Navigation("Departments");
                 });
 
-            modelBuilder.Entity("NureTimetableAPI.Models.Specialty", b =>
+            modelBuilder.Entity("NureTimetableAPI.Models.LessonType", b =>
                 {
-                    b.Navigation("Groups");
+                    b.Navigation("Lessons");
                 });
 #pragma warning restore 612, 618
         }

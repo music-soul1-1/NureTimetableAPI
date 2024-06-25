@@ -2,10 +2,10 @@
 
 namespace NureTimetableAPI.Jobs;
 
-public class CistBuildingsStructureFetch(ICistRepository cistRepository, IPostgreSQLRepository postgreRepository)
+public class CistBuildingsStructureFetch(ICistRepository cistRepository, ISQLRepository postgreRepository)
 {
     private readonly ICistRepository _cistRepository = cistRepository;
-    private readonly IPostgreSQLRepository _postgreRepository = postgreRepository;
+    private readonly ISQLRepository _postgreRepository = postgreRepository;
 
     public async Task Execute()
     {
@@ -29,7 +29,7 @@ public class CistBuildingsStructureFetch(ICistRepository cistRepository, IPostgr
         Console.ForegroundColor = ConsoleColor.Green;
         Console.WriteLine("Fetched auditories buildings successfully!");
 
-        await _postgreRepository.ClearAndSaveBuildingsAsync(buildings);
+        await _postgreRepository.FetchBuildingsAsync(buildings);
         Console.WriteLine("Saved buildings to DB successfully!");
 
         Console.ResetColor();

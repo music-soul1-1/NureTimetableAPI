@@ -15,7 +15,7 @@ public class DepartmentDomain
 
     public List<Teacher> Teachers { get; set; } = [];
 
-    public Guid TeachersFacultyDomainId { get; set; } // Foreign key for TeachersFacultyDomain
+    public Guid TeachersFacultyDomainId { get; set; }
 
-    public TeachersFacultyDomain TeachersFaculty { get; set; } // Navigation property for TeachersFacultyDomain
+    public TeachersFacultyDomain TeachersFaculty { get; set; }
 }
