@@ -87,6 +87,8 @@ app.UseHangfireDashboard("/hangfire",
     }
 );
 
+app.MapGet("/keepalive", () => "I'm alive!");
+
 RecurringJob.AddOrUpdate<CistGroupsStructureFetch>("cist-groups-structure-fetch",
             job => job.Execute(),
             Cron.Weekly(DayOfWeek.Sunday, 1, 30));
@@ -98,5 +100,9 @@ RecurringJob.AddOrUpdate<CistTeachersStructureFetch>("cist-teachers-structure-fe
 RecurringJob.AddOrUpdate<CistBuildingsStructureFetch>("cist-buildings-structure-fetch",
             job => job.Execute(),
             Cron.Weekly(DayOfWeek.Sunday, 1, 34));
+
+RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive",
+    job => job.Execute(),
+    Cron.Minutely());
 
 app.Run();
