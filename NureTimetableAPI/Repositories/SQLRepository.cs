@@ -735,9 +735,8 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
                 EntityId = id,
             };
 
-            // Getting the most recent executed job
             var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
-                .OrderByDescending(j => j.LastExecution).FirstOrDefault();
+                .OrderByDescending(j => j.Cron).FirstOrDefault(j => !j.Id.Contains("keep-alive"));
 
             RecurringJob.AddOrUpdate<ScheduleFetch>(
                 $"update-{entityType.ToString().ToLower()}-with-id-{id}",

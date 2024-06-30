@@ -3,6 +3,7 @@ using NureTimetableAPI.Repositories;
 using NureTimetableAPI.Types;
 using NureTimetableAPI.Exceptions;
 using Hangfire.Storage;
+using Hangfire;
 
 
 namespace NureTimetableAPI.Controllers;
@@ -37,11 +38,13 @@ public class LessonsController : ControllerBase
                 return BadRequest("Please provide a valid Id");
             }
             var lessons = await repository.GetLessonsAsync(id, type, startTime, endTime);
+            var fetchJob = Hangfire.JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
+                .FirstOrDefault(j => j.Id == $"update-{type.ToString().ToLower()}-with-id-{id}");
 
-            if (lessons == null || lessons.Count < 1)
+            if (fetchJob == null || lessons == null || lessons.Count < 1)
             {
-                var lastJob = Hangfire.JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
-                    .OrderByDescending(j => j.LastExecution).FirstOrDefault();
+                var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
+                        .OrderByDescending(j => j.LastExecution).FirstOrDefault(j => !j.Id.Contains("keep-alive"));
 
                 if (lastJob != null && lastJob.LastExecution != null && lastJob.LastExecution > DateTime.Now.AddSeconds(30))
                 {

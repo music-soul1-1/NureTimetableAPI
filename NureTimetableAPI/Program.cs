@@ -101,8 +101,12 @@ RecurringJob.AddOrUpdate<CistBuildingsStructureFetch>("cist-buildings-structure-
             job => job.Execute(),
             Cron.Weekly(DayOfWeek.Sunday, 1, 34));
 
-RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive",
-    job => job.Execute(),
-    Cron.Minutely());
+RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive-1",
+            job => job.Execute(),
+            Cron.Hourly(30));
+
+RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive-2",
+            job => job.Execute(),
+            Cron.Hourly(0));
 
 app.Run();
