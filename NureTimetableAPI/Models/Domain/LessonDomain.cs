@@ -72,7 +72,7 @@ public class LessonDomain
             {
                 Id = Auditory.AuditoryId,
                 Name = Auditory.ShortName,
-                Floor = Auditory.Floor,
+                Floor = Auditory.Floor ?? 0,
                 HasPower = Auditory.HasPower,
                 Building = new MinimalBuilding
                 {

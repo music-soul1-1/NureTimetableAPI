@@ -425,7 +425,7 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
                 {
                     Id = auditory.AuditoryId,
                     Name = auditory.ShortName,
-                    Floor = auditory.Floor,
+                    Floor = auditory.Floor ?? 0,
                     HasPower = auditory.HasPower,
                     Building = new MinimalBuilding
                     {
@@ -524,7 +524,7 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
         {
             Id = auditory.AuditoryId,
             Name = auditory.ShortName,
-            Floor = auditory.Floor,
+            Floor = auditory.Floor ?? 0,
             HasPower = auditory.HasPower,
             Building = new MinimalBuilding
             {
