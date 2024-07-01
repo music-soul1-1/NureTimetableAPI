@@ -43,6 +43,19 @@ builder.Services.AddDbContext<NureTimetableDbContext>(options =>
 
 var app = builder.Build();
 
+// Redirect to docs
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path == "/" || context.Request.Path == "")
+    {
+        context.Response.Redirect("https://music-soul1-1.github.io/NureTimetableAPI.Docs/", true);
+    }
+    else
+    {
+        await next();
+    }
+});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -63,7 +76,7 @@ app.UseCors();
 app.UseHangfireDashboard("/hangfire", 
     new DashboardOptions
     {
-        AppPath = "https://music-soul1-1.github.io/NureTimetableAPI/",
+        AppPath = "https://music-soul1-1.github.io/NureTimetableAPI.Docs/",
         DisplayStorageConnectionString = false,
         Authorization =
         [
