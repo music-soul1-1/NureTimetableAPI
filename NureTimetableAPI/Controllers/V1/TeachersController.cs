@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Asp.Versioning;
 using Microsoft.AspNetCore.Mvc;
+using NureTimetableAPI.Models.Dto;
 using NureTimetableAPI.Repositories;
 
-namespace NureTimetableAPI.Controllers;
+namespace NureTimetableAPI.Controllers.V1;
 
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
+[ApiVersion("1.0")]
 public class TeachersController : ControllerBase
 {
     private readonly ILogger<TeachersController> _logger;
@@ -19,13 +21,15 @@ public class TeachersController : ControllerBase
 
     [HttpGet]
     [Route("All")]
+    [ProducesResponseType<List<TeacherDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetTeachers()
     {
         var teachers = await _postgreRepository.GetTeachersAsync();
 
         if (teachers == null)
         {
-            return NotFound();
+            return NoContent();
         }
 
         return Ok(teachers);
@@ -33,13 +37,15 @@ public class TeachersController : ControllerBase
 
     [HttpGet]
     [Route("Faculties")]
+    [ProducesResponseType<List<TeachersFacultyDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetTeachersFaculties()
     {
         var faculties = await _postgreRepository.GetTeachersFacultiesAsync();
 
         if (faculties == null)
         {
-            return NotFound();
+            return NoContent();
         }
 
         return Ok(faculties);
@@ -47,13 +53,15 @@ public class TeachersController : ControllerBase
 
     [HttpGet]
     [Route("{id}")]
+    [ProducesResponseType<TeacherDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetTeacher(int id)
     {
         var teacher = await _postgreRepository.GetTeacherAsync(id);
 
         if (teacher == null)
         {
-            return NotFound();
+            return NoContent();
         }
 
         return Ok(teacher);

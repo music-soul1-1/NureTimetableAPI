@@ -4,6 +4,8 @@ using Hangfire;
 using NureTimetableAPI.Jobs;
 using NureTimetableAPI.Contexts;
 using Hangfire.Dashboard.BasicAuthorization;
+using Asp.Versioning;
+using Microsoft.OpenApi.Models;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,11 +19,42 @@ builder.Services.AddHangfire(config =>
 });
 builder.Services.AddHangfireServer();
 
+builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new QueryStringApiVersionReader("api-ver"),
+        new HeaderApiVersionReader("X-Version"),
+        new MediaTypeApiVersionReader("ver"));
+
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "NureTimetableAPI v1",
+        Description = "API for NureTimetable"
+    });
+
+    options.DocInclusionPredicate((version, apiDescription) =>
+    {
+        if (apiDescription.GroupName == null) return true;
+        return apiDescription.GroupName == version;
+    });
+});
 
 builder.Services.AddCors(options => 
 {
@@ -61,7 +94,10 @@ app.Use(async (context, next) =>
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "NureTimetableAPI v1");
+    });
 }
 
 app.UseHttpsRedirection();
@@ -100,8 +136,6 @@ app.UseHangfireDashboard("/hangfire",
         ]
     }
 );
-
-app.MapGet("/keepalive", () => "I'm alive!");
 
 RecurringJob.AddOrUpdate<CistGroupsStructureFetch>("cist-groups-structure-fetch",
             job => job.Execute(),

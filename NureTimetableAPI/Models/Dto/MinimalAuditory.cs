@@ -6,7 +6,7 @@ public class MinimalAuditory
 
     public string Name { get; set; } = "";
 
-    public int? Floor { get; set; }
+    public int Floor { get; set; }
 
     public bool HasPower { get; set; }
 

@@ -4,12 +4,15 @@ using NureTimetableAPI.Types;
 using NureTimetableAPI.Exceptions;
 using Hangfire.Storage;
 using Hangfire;
+using Asp.Versioning;
+using NureTimetableAPI.Models.Dto;
 
 
-namespace NureTimetableAPI.Controllers;
+namespace NureTimetableAPI.Controllers.V1;
 
-[Route("api/[controller]")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
+[ApiVersion("1.0")]
 public class LessonsController : ControllerBase
 {
     private readonly ILogger<LessonsController> _logger;
@@ -25,6 +28,10 @@ public class LessonsController : ControllerBase
 
     [HttpGet]
     [Route("Get")]
+    [ProducesResponseType<List<LessonDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetLessons(
         [FromQuery(Name = "id")] int id,
         [FromQuery(Name = "type")] EntityType type = EntityType.Group,
@@ -38,7 +45,7 @@ public class LessonsController : ControllerBase
                 return BadRequest("Please provide a valid Id");
             }
             var lessons = await repository.GetLessonsAsync(id, type, startTime, endTime);
-            var fetchJob = Hangfire.JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
+            var fetchJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
                 .FirstOrDefault(j => j.Id == $"update-{type.ToString().ToLower()}-with-id-{id}");
 
             if (fetchJob == null || lessons == null || lessons.Count < 1)
@@ -66,14 +73,18 @@ public class LessonsController : ControllerBase
         {
             return NotFound(ex.Message);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             return StatusCode(500, $"An error occupied while getting lessons for {type} with id {id}. Exception: {ex.Message}");
-        }        
+        }
     }
 
     [HttpGet]
     [Route("GetByName")]
+    [ProducesResponseType<List<LessonDto>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetLessonsByName(
         [FromQuery(Name = "name")] string name,
         [FromQuery(Name = "type")] EntityType type = EntityType.Group,
@@ -91,7 +102,7 @@ public class LessonsController : ControllerBase
 
             if (lessons == null || lessons.Count < 1)
             {
-                var lastJob = Hangfire.JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
+                var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
                     .OrderByDescending(j => j.LastExecution).FirstOrDefault();
 
                 if (lastJob != null && lastJob.LastExecution != null && lastJob.LastExecution > DateTime.Now.AddSeconds(30))

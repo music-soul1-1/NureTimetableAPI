@@ -389,7 +389,7 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
                 {
                     Id = a.AuditoryId,
                     Name = a.ShortName,
-                    Floor = a.Floor,
+                    Floor = a.Floor ?? 0,
                     HasPower = a.HasPower,
                     AuditoryTypes = a.AuditoryTypes.Select(at => new AuditoryTypeDto
                     {
