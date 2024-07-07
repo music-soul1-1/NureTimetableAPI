@@ -773,8 +773,8 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
             var facultyDomain = new GroupsFacultyDomain
             {
                 FacultyId = faculty.Id,
-                ShortName = faculty.ShortName,
-                FullName = faculty.FullName,
+                ShortName = faculty.FullName, // ShortName and FullName are swapped in Cist
+                FullName = faculty.ShortName,
                 Directions = [],
             };
 
@@ -783,8 +783,8 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
                 var directionDomain = new DirectionDomain
                 {
                     DirectionId = direction.Id,
-                    ShortName = direction.ShortName,
-                    FullName = direction.FullName,
+                    ShortName = direction.FullName,
+                    FullName = direction.ShortName,
                     Groups = [],
                     GroupsFacultyDomainId = facultyDomain.Id,
                 };
