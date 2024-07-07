@@ -10,3 +10,5 @@ API is currently hosted for free on [MonsterASP.NET](https://www.monsterasp.net/
 
 
 📃 Go to [Docs](https://music-soul1-1.github.io/NureTimetableAPI.Docs/) to get started.
+
+📟 **Swagger UI** is available [here](https://nure-time.runasp.net/swagger).
