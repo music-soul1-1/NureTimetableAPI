@@ -52,7 +52,7 @@ public class LessonsController : ControllerBase
             var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
                 .OrderByDescending(j => j.Cron).FirstOrDefault(j => !j.Id.Contains("keep-alive"));
 
-            if (fetchJob == null)
+            if (fetchJob == null || lessons == null || lessons.Count < 1)
             {
                 RecurringJob.AddOrUpdate<ScheduleFetch>(
                     $"update-{type.ToString().ToLower()}-with-id-{id}",
@@ -61,10 +61,7 @@ public class LessonsController : ControllerBase
                     Cron.Daily(lastJob.NextExecution.Value.Hour, lastJob.NextExecution.Value.Minute + 1) :
                     Cron.Daily(DateTime.Now.Hour, DateTime.Now.Minute)
                 );
-            }
 
-            if (lessons == null || lessons.Count < 1)
-            {
                 if (lastJob != null && lastJob.LastExecution != null && lastJob.LastExecution > DateTime.Now.AddSeconds(30))
                 {
                     throw new Exception($"Please wait {lastJob.LastExecution.Value.Second} seconds, and then try again");
