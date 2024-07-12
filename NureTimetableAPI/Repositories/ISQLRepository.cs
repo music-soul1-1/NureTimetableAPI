@@ -32,8 +32,33 @@ public interface ISQLRepository
     /// <returns></returns>
     public Task FetchBuildingsAsync(List<CistBuilding> p_buildings);
 
+
+    /// <summary>
+    /// Performs a transaction with the database, which deletes lessons from DB, and saves <paramref name="cistSchedule"/> to the DB.
+    /// </summary>
+    /// <param name="id">
+    /// Id of the entity.
+    /// </param>
+    /// <param name="cistSchedule">
+    /// Schedule from Cist, which can be fetched by calling <see cref="ICistRepository.GetCistScheduleAsync(int, EntityType)"/>.
+    /// </param>
+    /// <param name="entityType">
+    /// Type of schedule (group, teacher, auditory).
+    /// </param>
+    /// <param name="startTime">
+    /// Start time of the schedule, must be UNIX Seconds timestamp.
+    /// </param>
+    /// <param name="endTime">
+    /// End time of the schedule, must be UNIX Seconds timestamp.
+    /// </param>
+    /// <returns></returns>
     public Task<List<LessonDto>?> FetchSchedule(int id, CistSchedule cistSchedule, EntityType entityType, int? startTime = null, int? endTime = null);
 
+
+    /// <inheritdoc cref="FetchSchedule(int, CistSchedule, EntityType, int?, int?)"/>
+    /// <param name="name">
+    /// Name of the entity. For teachers use name in a form of "Шевченко Т. Г.".
+    /// </param>
     public Task<List<LessonDto>?> FetchSchedule(string name, CistSchedule cistSchedule, EntityType entityType, int? startTime = null, int? endTime = null);
 
     #endregion
@@ -108,6 +133,13 @@ public interface ISQLRepository
     public Task<GroupDto?> GetGroupAsync(int id);
 
     /// <summary>
+    /// Gets a group by its <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public Task<GroupDto?> GetGroupAsync(string name);
+
+    /// <summary>
     /// Gets a teacher by its <paramref name="id"/>.
     /// </summary>
     /// <param name="id"></param>
@@ -115,11 +147,25 @@ public interface ISQLRepository
     public Task<TeacherDto?> GetTeacherAsync(int id);
 
     /// <summary>
+    /// Gets a teacher by its <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public Task<TeacherDto?> GetTeacherAsync(string name);
+
+    /// <summary>
     /// Gets an auditory by its <paramref name="id"/>.
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
     public Task<AuditoryDto?> GetAuditoryAsync(int id);
+
+    /// <summary>
+    /// Gets an auditory by its <paramref name="name"/>.
+    /// </summary>
+    /// <param name="name"></param>
+    /// <returns></returns>
+    public Task<AuditoryDto?> GetAuditoryAsync(string name);
 
     #endregion
 

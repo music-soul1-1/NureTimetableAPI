@@ -1,8 +1,5 @@
-﻿using Hangfire;
-using Hangfire.Storage;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using NureTimetableAPI.Contexts;
-using NureTimetableAPI.Jobs;
 using NureTimetableAPI.Models;
 using NureTimetableAPI.Models.Cist;
 using NureTimetableAPI.Models.Domain;
@@ -476,6 +473,13 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
         };
     }
 
+    public async Task<GroupDto?> GetGroupAsync(string name)
+    {
+        var groups = await GetGroupsAsync();
+
+        return groups?.FirstOrDefault(g => g.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task<TeacherDto?> GetTeacherAsync(int id)
     {
         var teacher = await _dbContext.Teachers.Where(t => t.TeacherId == id)
@@ -508,6 +512,13 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
         };
     }
 
+    public async Task<TeacherDto?> GetTeacherAsync(string name)
+    {
+        var teachers = await GetTeachersAsync();
+
+        return teachers?.FirstOrDefault(t => t.ShortName.Equals(name, StringComparison.OrdinalIgnoreCase));
+    }
+
     public async Task<AuditoryDto?> GetAuditoryAsync(int id)
     {
         var auditory = await _dbContext.Auditories.Where(b => b.AuditoryId == id)
@@ -538,6 +549,13 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
                 Name = at.Name,
             }).ToList(),
         };
+    }
+
+    public async Task<AuditoryDto?> GetAuditoryAsync(string name)
+    {
+        var auditories = await GetAuditoriesAsync();
+
+        return auditories?.FirstOrDefault(a => a.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
 
     #endregion
@@ -687,6 +705,25 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
         groups.RemoveAll(g => cistSchedule.Groups.All(cg => cg.Id != g.GroupId));
         teachers.RemoveAll(t => cistSchedule.Teachers.All(ct => ct.TeacherId != t.TeacherId));
 
+        var groupFacultyIds = groups.Select(g => g.Direction.GroupsFaculty.FacultyId).Distinct().ToList();
+
+        var teachersToRemove = new List<Teacher>();
+
+        foreach (var teacher in teachers)
+        {
+            teachersToRemove.AddRange(teachers.Where(
+                t => teachers.Count(dup => dup.TeacherId == t.TeacherId) > 1
+                && !groupFacultyIds.Contains(t.Department.TeachersFaculty.FacultyId)
+            ).ToList());
+        }
+
+        teachersToRemove = teachersToRemove.Distinct().ToList();
+
+        foreach (var teacher in teachersToRemove)
+        {
+            teachers.Remove(teacher);
+        }
+
         foreach (var _event in cistSchedule.Events)
         {
             lessonsDomain.Add(new LessonDomain
@@ -714,6 +751,19 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
 
     #region Saving methods
 
+    /// <summary>
+    /// Saves Cist lessons to the database.
+    /// </summary>
+    /// <param name="id">
+    /// Id of the entity.
+    /// </param>
+    /// <param name="cistSchedule">
+    /// Schedule from Cist, which can be fetched by calling <see cref="ICistRepository.GetCistScheduleAsync(int, EntityType)"/>.
+    /// </param>
+    /// <param name="entityType">
+    /// Type of schedule (group, teacher, auditory).
+    /// </param>
+    /// <returns></returns>
     private async Task<List<LessonDto>?> SaveLessonsToDbAsync(int id, CistSchedule cistSchedule, EntityType entityType)
     {
         var lessons = await ConvertCistScheduleToLessons(cistSchedule);
@@ -734,17 +784,6 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
                 Type = entityType,
                 EntityId = id,
             };
-
-            var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
-                .OrderByDescending(j => j.Cron).FirstOrDefault(j => !j.Id.Contains("keep-alive"));
-
-            RecurringJob.AddOrUpdate<ScheduleFetch>(
-                $"update-{entityType.ToString().ToLower()}-with-id-{id}",
-                job => job.Execute(id, cistSchedule, entityType),
-                (lastJob != null && lastJob.NextExecution != null) ?
-                Cron.Daily(lastJob.NextExecution.Value.Hour, lastJob.NextExecution.Value.Minute + 1) :
-                Cron.Daily(DateTime.Now.Hour, DateTime.Now.Minute)
-            );
 
             _dbContext.ScheduleFetchLogs.Add(fetchLog);
         }

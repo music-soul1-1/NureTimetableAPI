@@ -4,12 +4,18 @@ using NureTimetableAPI.Types;
 
 namespace NureTimetableAPI.Jobs;
 
-public class ScheduleFetch(ISQLRepository postgreSQLRepository)
+public class ScheduleFetch(ICistRepository cistRepository, ISQLRepository postgreSQLRepository)
 {
     private readonly ISQLRepository repo = postgreSQLRepository;
+    private readonly ICistRepository cist = cistRepository;
 
-    public async Task Execute(int id, CistSchedule cistSchedule, EntityType entityType)
+    public async Task Execute(int id, EntityType entityType)
     {
-        await repo.FetchSchedule(id, cistSchedule, entityType);
+        var cistSchedule = await cist.GetCistScheduleAsync(id, entityType);
+
+        if (cistSchedule != null)
+        {
+            await repo.FetchSchedule(id, cistSchedule, entityType);
+        }        
     }
 }

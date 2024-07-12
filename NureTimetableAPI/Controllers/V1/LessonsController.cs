@@ -6,6 +6,7 @@ using Hangfire.Storage;
 using Hangfire;
 using Asp.Versioning;
 using NureTimetableAPI.Models.Dto;
+using NureTimetableAPI.Jobs;
 
 
 namespace NureTimetableAPI.Controllers.V1;
@@ -45,14 +46,25 @@ public class LessonsController : ControllerBase
                 return BadRequest("Please provide a valid Id");
             }
             var lessons = await repository.GetLessonsAsync(id, type, startTime, endTime);
+
             var fetchJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
                 .FirstOrDefault(j => j.Id == $"update-{type.ToString().ToLower()}-with-id-{id}");
+            var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
+                .OrderByDescending(j => j.Cron).FirstOrDefault(j => !j.Id.Contains("keep-alive"));
 
-            if (fetchJob == null || lessons == null || lessons.Count < 1)
+            if (fetchJob == null)
             {
-                var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
-                        .OrderByDescending(j => j.LastExecution).FirstOrDefault(j => !j.Id.Contains("keep-alive"));
+                RecurringJob.AddOrUpdate<ScheduleFetch>(
+                    $"update-{type.ToString().ToLower()}-with-id-{id}",
+                    job => job.Execute(id, type),
+                    (lastJob != null && lastJob.NextExecution != null) ?
+                    Cron.Daily(lastJob.NextExecution.Value.Hour, lastJob.NextExecution.Value.Minute + 1) :
+                    Cron.Daily(DateTime.Now.Hour, DateTime.Now.Minute)
+                );
+            }
 
+            if (lessons == null || lessons.Count < 1)
+            {
                 if (lastJob != null && lastJob.LastExecution != null && lastJob.LastExecution > DateTime.Now.AddSeconds(30))
                 {
                     throw new Exception($"Please wait {lastJob.LastExecution.Value.Second} seconds, and then try again");
@@ -92,42 +104,24 @@ public class LessonsController : ControllerBase
         [FromQuery(Name = "endTime")] int? endTime = null
         )
     {
-        try
+        if (name.Length < 1)
         {
-            if (name.Length < 1)
-            {
-                return BadRequest("Please provide a valid name");
-            }
-            var lessons = await repository.GetLessonsAsync(name, type, startTime, endTime);
-
-            if (lessons == null || lessons.Count < 1)
-            {
-                var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
-                    .OrderByDescending(j => j.LastExecution).FirstOrDefault();
-
-                if (lastJob != null && lastJob.LastExecution != null && lastJob.LastExecution > DateTime.Now.AddSeconds(30))
-                {
-                    throw new Exception($"Please wait {lastJob.LastExecution.Value.Second} seconds, and then try again");
-                }
-                var cistLessons = await cist.GetCistScheduleAsync(name, type);
-
-                if (cistLessons == null)
-                {
-                    throw new NotFoundException($"Cist lessons not found for {type} with name {name}");
-                }
-
-                return Ok(await repository.FetchSchedule(name, cistLessons, type, startTime, endTime));
-            }
-
-            return Ok(lessons);
+            return BadRequest("Please provide a valid name");
         }
-        catch (NotFoundException ex)
+
+        var id = type switch
         {
-            return NotFound(ex.Message);
-        }
-        catch (Exception ex)
+            EntityType.Group => (await repository.GetGroupAsync(name))?.Id,
+            EntityType.Teacher => (await repository.GetTeacherAsync(name))?.Id,
+            EntityType.Auditory => (await repository.GetAuditoryAsync(name))?.Id,
+            _ => throw new ArgumentException($"Invalid entity type: {type}"),
+        } ?? 0;
+
+        if (id == 0)
         {
-            return StatusCode(500, $"An error occupied while getting lessons for {type} with name {name}. Exception: {ex.Message}");
+            return NotFound($"No {type} found with name {name}");
         }
+
+        return await GetLessons(id, type, startTime, endTime);
     }
 }
