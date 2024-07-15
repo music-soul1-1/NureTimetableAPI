@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using NureTimetableAPI.Models.Dto;
 using NureTimetableAPI.Repositories;
 
-
 namespace NureTimetableAPI.Controllers.V1;
 
 [Route("api/v{version:apiVersion}/[controller]")]
@@ -59,6 +58,21 @@ public class GroupsController : ControllerBase
     public async Task<IActionResult> GetGroup(int id)
     {
         var group = await _postgreRepository.GetGroupAsync(id);
+
+        if (group == null)
+        {
+            return NoContent();
+        }
+
+        return Ok(group);
+    }
+
+    [HttpGet]
+    [ProducesResponseType<GroupDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> GetGroupByName([FromQuery(Name = "name")] string name)
+    {
+        var group = await _postgreRepository.GetGroupAsync(name);
 
         if (group == null)
         {

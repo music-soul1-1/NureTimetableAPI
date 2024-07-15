@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using NureTimetableAPI.Models.Dto;
 using NureTimetableAPI.Repositories;
-using System.Collections.Generic;
 
 namespace NureTimetableAPI.Controllers.V1;
 
@@ -53,6 +52,21 @@ public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepo
     public async Task<IActionResult> GetAuditory(int id)
     {
         var auditory = await _postgreRepository.GetAuditoryAsync(id);
+
+        if (auditory == null)
+        {
+            return NoContent();
+        }
+
+        return Ok(auditory);
+    }
+
+    [HttpGet]
+    [ProducesResponseType<AuditoryDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> GetAuditoryByName([FromQuery(Name = "name")] string name)
+    {
+        var auditory = await _postgreRepository.GetAuditoryAsync(name);
 
         if (auditory == null)
         {

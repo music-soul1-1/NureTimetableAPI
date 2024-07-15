@@ -66,4 +66,19 @@ public class TeachersController : ControllerBase
 
         return Ok(teacher);
     }
+
+    [HttpGet]
+    [ProducesResponseType<TeacherDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> GetTeacherByName([FromQuery(Name = "name")] string name)
+    {
+        var teacher = await _postgreRepository.GetTeacherAsync(name);
+
+        if (teacher == null)
+        {
+            return NoContent();
+        }
+
+        return Ok(teacher);
+    }
 }
