@@ -8,28 +8,20 @@ using Asp.Versioning;
 using NureTimetableAPI.Models.Dto;
 using NureTimetableAPI.Jobs;
 
-
-namespace NureTimetableAPI.Controllers.V1;
+namespace NureTimetableAPI.Controllers.V2;
 
 
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
-[ApiVersion("1.0", Deprecated = true)]
-public class LessonsController : ControllerBase
+[ApiVersion("2.0")]
+public class LessonsController(ILogger<LessonsController> logger, ISQLRepository repository, ICistRepository cist) : ControllerBase
 {
-    private readonly ILogger<LessonsController> _logger;
-    private readonly ISQLRepository repository;
-    private readonly ICistRepository cist;
-
-    public LessonsController(ILogger<LessonsController> logger, ISQLRepository repository, ICistRepository cist)
-    {
-        _logger = logger;
-        this.repository = repository;
-        this.cist = cist;
-    }
+    private readonly ILogger<LessonsController> _logger = logger;
+    private readonly ISQLRepository repository = repository;
+    private readonly ICistRepository cist = cist;
 
     [HttpGet]
-    [Route("Get")]
+    [Route("GetById")]
     [ProducesResponseType<List<LessonDto>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

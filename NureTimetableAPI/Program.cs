@@ -22,7 +22,7 @@ builder.Services.AddHangfireServer();
 builder.Services.AddApiVersioning(options =>
 {
     options.AssumeDefaultVersionWhenUnspecified = true;
-    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.DefaultApiVersion = new ApiVersion(2, 0);
     options.ReportApiVersions = true;
     options.ApiVersionReader = ApiVersionReader.Combine(
         new UrlSegmentApiVersionReader(),
@@ -46,7 +46,24 @@ builder.Services.AddSwaggerGen(options =>
     {
         Version = "v1",
         Title = "NureTimetableAPI v1",
-        Description = "API for NureTimetable"
+        Description = "Deprecated. Please use v2.",
+        License = new OpenApiLicense
+        {
+            Name = "GNU GPL v3.0",
+            Url = new Uri("https://www.gnu.org/licenses/gpl-3.0.html")
+        }
+    });
+
+    options.SwaggerDoc("v2", new OpenApiInfo
+    {
+        Version = "v2",
+        Title = "NureTimetableAPI v2",
+        Description = "API for NureTimetable",
+        License = new OpenApiLicense
+        {
+            Name = "GNU GPL v3.0",
+            Url = new Uri("https://www.gnu.org/licenses/gpl-3.0.html")
+        }
     });
 
     options.DocInclusionPredicate((version, apiDescription) =>
@@ -95,7 +112,9 @@ app.Use(async (context, next) =>
 app.UseSwagger();
 app.UseSwaggerUI(options =>
 {
+    options.SwaggerEndpoint("/swagger/v2/swagger.json", "NureTimetableAPI v2");
     options.SwaggerEndpoint("/swagger/v1/swagger.json", "NureTimetableAPI v1");
+    options.EnableTryItOutByDefault();
 });
 
 app.UseHttpsRedirection();
