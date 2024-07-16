@@ -5,9 +5,10 @@ using NureTimetableAPI.Repositories;
 
 namespace NureTimetableAPI.Controllers.V1;
 
+
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
-[ApiVersion("1.0")]
+[ApiVersion("1.0", Deprecated = true)]
 public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepository postgreRepository) : ControllerBase
 {
     private readonly ILogger<AuditoriesController> _logger = logger;

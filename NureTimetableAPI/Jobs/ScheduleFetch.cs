@@ -1,5 +1,4 @@
-﻿using NureTimetableAPI.Models.Cist;
-using NureTimetableAPI.Repositories;
+﻿using NureTimetableAPI.Repositories;
 using NureTimetableAPI.Types;
 
 namespace NureTimetableAPI.Jobs;
@@ -16,6 +15,7 @@ public class ScheduleFetch(ICistRepository cistRepository, ISQLRepository postgr
         if (cistSchedule != null)
         {
             await repo.FetchSchedule(id, cistSchedule, entityType);
-        }        
+        }
+        // TODO: Log errors
     }
 }
