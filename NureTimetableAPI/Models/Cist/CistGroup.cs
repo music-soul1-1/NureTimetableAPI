@@ -1,6 +1,4 @@
 ﻿using Newtonsoft.Json;
-using NureTimetableAPI.Models.Domain;
-using System.ComponentModel.DataAnnotations;
 
 namespace NureTimetableAPI.Models.Cist;
 

@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using NureTimetableAPI.Repositories;
-using NureTimetableAPI.Types;
-using NureTimetableAPI.Exceptions;
 using Hangfire.Storage;
 using Hangfire;
 using Asp.Versioning;
+using NureTimetableAPI.Repositories;
+using NureTimetableAPI.Types;
+using NureTimetableAPI.Exceptions;
 using NureTimetableAPI.Models.Dto;
 using NureTimetableAPI.Jobs;
+using NureTimetableAPI.Controllers.Responses;
 
 namespace NureTimetableAPI.Controllers.V2;
 
@@ -47,14 +48,6 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
 
             if (fetchJob == null || lessons == null || lessons.Count < 1)
             {
-                RecurringJob.AddOrUpdate<ScheduleFetch>(
-                    $"update-{type.ToString().ToLower()}-with-id-{id}",
-                    job => job.Execute(id, type),
-                    (lastJob != null && lastJob.NextExecution != null) ?
-                    Cron.Daily(lastJob.NextExecution.Value.Hour, lastJob.NextExecution.Value.Minute + 1) :
-                    Cron.Daily(DateTime.Now.Hour, DateTime.Now.Minute)
-                );
-
                 if (lastJob != null && lastJob.LastExecution != null && lastJob.LastExecution > DateTime.Now.AddSeconds(30))
                 {
                     throw new Exception($"Please wait {lastJob.LastExecution.Value.Second} seconds, and then try again");
@@ -66,7 +59,17 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
                     throw new NotFoundException($"Cist lessons not found for {type} with id {id}");
                 }
 
-                return Ok(await repository.FetchSchedule(id, cistLessons, type, startTime, endTime));
+                lessons = await repository.FetchSchedule(id, cistLessons, type, startTime, endTime);
+
+                RecurringJob.AddOrUpdate<ScheduleFetch>(
+                    $"update-{type.ToString().ToLower()}-with-id-{id}",
+                    job => job.Execute(id, type),
+                    (lastJob != null && lastJob.NextExecution != null) ?
+                    Cron.Daily(lastJob.NextExecution.Value.Hour, lastJob.NextExecution.Value.Minute + 1) :
+                    Cron.Daily(DateTime.Now.Hour, DateTime.Now.Minute)
+                );
+
+                return Ok(lessons);
             }
 
             return Ok(lessons);
@@ -77,7 +80,7 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"An error occupied while getting lessons for {type} with id {id}. Exception: {ex.Message}");
+            return StatusCode(500, new ResponseMessage($"An error occupied while getting lessons for {type} with id {id}. Exception: {ex.Message}", 500));
         }
     }
 

@@ -3,7 +3,6 @@ using NureTimetableAPI.Exceptions;
 using NureTimetableAPI.Helpers;
 using NureTimetableAPI.Models;
 using NureTimetableAPI.Models.Cist;
-using NureTimetableAPI.Models.Dto;
 using NureTimetableAPI.Types;
 using System.Net;
 
