@@ -247,7 +247,7 @@ public class CistRepository() : ICistRepository
                 .SelectMany(d => d.Departments)
                 .SelectMany(d => d.Teachers));
         }
-        
+
         return teachers;
     }
 
@@ -257,7 +257,7 @@ public class CistRepository() : ICistRepository
         {
             await GetTeachersFacultiesAsync();
         }
-        
+
         var teachers = new List<Teacher>();
 
         if (teachersFaculties != null)
@@ -327,15 +327,13 @@ public class CistRepository() : ICistRepository
     {
         var response = await httpClient.GetAsync(
             $"https://cist.nure.ua/ias/app/tt/P_API_EVENT_JSON?timetable_id={id}" +
-            $"&type_id={
-                type switch 
-                { 
-                    EntityType.Group => 1, 
-                    EntityType.Teacher => 2, 
-                    EntityType.Auditory => 3, 
-                    _ => 1 
-                }
-                }" +
+            $"&type_id={type switch
+            {
+                EntityType.Group => 1,
+                EntityType.Teacher => 2,
+                EntityType.Auditory => 3,
+                _ => 1
+            }}" +
             $"&idClient=KNURESked"
             );
 
@@ -344,7 +342,18 @@ public class CistRepository() : ICistRepository
             throw new NotFoundException($"Schedule for {type} with id {id} not found");
         }
 
-        return await HttpResponseDecoder.DeserializeResponse<CistSchedule>(response);
+        var responseString = await HttpResponseDecoder.ConvertToString(response);
+        
+        var regex = new System.Text.RegularExpressions.Regex("\"events\":\\s*\\[\\s*\\]\\s*\\}\\s*\\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        var match = regex.Match(responseString);
+
+        if (match.Success)
+        {
+            responseString = responseString.Remove(match.Index, match.Length);
+            responseString = responseString.Insert(match.Index, "\"events\":[]");
+        }
+
+        return JsonConvert.DeserializeObject<CistSchedule>(responseString);
     }
 
     public async Task<CistSchedule?> GetCistScheduleAsync(string name, EntityType type = EntityType.Group)

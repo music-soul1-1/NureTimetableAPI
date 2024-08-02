@@ -46,7 +46,7 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
             var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
                 .OrderByDescending(j => j.Cron).FirstOrDefault(j => !j.Id.Contains("keep-alive"));
 
-            if (fetchJob == null || lessons == null || lessons.Count < 1)
+            if (fetchJob == null || lessons == null)
             {
                 if (lastJob != null && lastJob.LastExecution != null && lastJob.LastExecution > DateTime.Now.AddSeconds(30))
                 {
