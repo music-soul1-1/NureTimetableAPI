@@ -16,6 +16,8 @@ builder.Services.AddHangfire(config =>
     config.UseSqlServerStorage(builder.Configuration.GetSection("ConnectionStringProduction").Value);
     config.UseSimpleAssemblyNameTypeSerializer();
     config.UseRecommendedSerializerSettings();
+
+    GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 1, DelaysInSeconds = [60] });
 });
 builder.Services.AddHangfireServer();
 
