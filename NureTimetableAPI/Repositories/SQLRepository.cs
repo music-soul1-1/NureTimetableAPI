@@ -885,33 +885,53 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
                 Departments = [],
             };
 
-            foreach (var department in faculty.Departments)
+            foreach (var innerFaculty in faculty.InnerFaculties)
             {
-                if (department.Teachers.Count > 0)
+                if (innerFaculty.Teachers.Count > 0)
                 {
-                    facultyDomain.Departments.Add(department.ToDepartmentDomain(facultyDomain));
+                    facultyDomain.Departments.Add(innerFaculty.ToDepartmentDomain(facultyDomain));
                 }
                 else
                 {
                     var subFacultyDomain = new TeachersFacultyDomain
                     {
-                        FacultyId = department.Id,
-                        ShortName = department.ShortName,
-                        FullName = department.FullName,
+                        FacultyId = innerFaculty.Id,
+                        ShortName = innerFaculty.ShortName,
+                        FullName = innerFaculty.FullName,
                         Departments = [],
                     };
 
-                    foreach (var subDepartment in department.Departments)
+                    foreach (var innerInnerFaculty in innerFaculty.InnerInnerFaculties)
                     {
-                        subFacultyDomain.Departments.Add(new DepartmentDomain
+                        if (innerInnerFaculty.Teachers.Count > 0)
                         {
-                            DepartmentId = subDepartment.Id,
-                            ShortName = subDepartment.ShortName,
-                            FullName = subDepartment.FullName,
-                            Teachers = subDepartment.Teachers,
-                            TeachersFaculty = subFacultyDomain,
-                            TeachersFacultyDomainId = subFacultyDomain.Id,
-                        });
+                            subFacultyDomain.Departments.Add(innerInnerFaculty.ToDepartmentDomain(subFacultyDomain));
+                        }
+                        else
+                        {
+                            var subSubFacultyDomain = new TeachersFacultyDomain
+                            {
+                                FacultyId = innerInnerFaculty.Id,
+                                ShortName = innerInnerFaculty.ShortName,
+                                FullName = innerInnerFaculty.FullName,
+                                Departments = [],
+                            };
+
+                            foreach (var innerInnerDepartment in innerInnerFaculty.Departments)
+                            {
+                                subSubFacultyDomain.Departments.Add(new DepartmentDomain
+                                {
+                                    DepartmentId = innerInnerDepartment.Id,
+                                    ShortName = innerInnerDepartment.ShortName,
+                                    FullName = innerInnerDepartment.FullName,
+                                    Teachers = innerInnerDepartment.Teachers,
+                                    TeachersFaculty = subSubFacultyDomain,
+                                    TeachersFacultyDomainId = subSubFacultyDomain.Id,
+                                });
+                            }
+
+                            teachersFaculties.Add(subSubFacultyDomain);
+                        }
                     }
                     teachersFaculties.Add(subFacultyDomain);
                 }

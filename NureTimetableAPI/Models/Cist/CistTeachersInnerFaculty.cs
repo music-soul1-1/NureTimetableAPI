@@ -3,17 +3,10 @@ using NureTimetableAPI.Models.Domain;
 
 namespace NureTimetableAPI.Models.Cist;
 
-
-/// <summary>
-/// The difference between this and <see cref="Department"/> is that Cist can return inner departments.
-/// <br>
-/// This class is used in implementation of  <see cref="Repositories.ICistRepository.FetchTeachersAsync"/>
-/// </br>
-/// </summary>
-public class CistTeachersDepartment : Department
+public class CistTeachersInnerFaculty : Department
 {
     [JsonProperty("departments")]
-    public List<Department> Departments { get; set; } = [];
+    public List<CistTeachersInnerInnerFaculty> InnerInnerFaculties { get; set; } = [];
 
     public Department ToDepartment()
     {

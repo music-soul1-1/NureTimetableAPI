@@ -14,5 +14,5 @@ public class CistTeachersFaculty
     public string FullName { get; set; } = "";
 
     [JsonProperty("departments")]
-    public List<CistTeachersDepartment> Departments { get; set; } = [];
+    public List<CistTeachersInnerFaculty> InnerFaculties { get; set; } = [];
 }

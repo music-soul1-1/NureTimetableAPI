@@ -89,48 +89,6 @@ public class CistRepository() : ICistRepository
         return teachersFaculties;
     }
 
-    public async Task<List<Department>?> GetTeachersDepartments()
-    {
-        if (departments == null)
-        {
-            var response = await httpClient.GetAsync("https://cist.nure.ua/ias/app/tt/P_API_PODR_JSON");
-            var jsonString = await HttpResponseDecoder.ConvertToString(response);
-
-            // Fixing Cist JSON
-            jsonString = jsonString.Trim().Remove(jsonString.Length - 2);
-            jsonString += "]}}";
-
-            var data = JsonConvert.DeserializeObject<CistTeachersStructureResponse>(jsonString);
-            List<Department>? departments = [];
-
-            if (data == null)
-            {
-                return null;
-            }
-
-            foreach (var faculty in data.University.Faculties)
-            {
-                foreach (var department in faculty.Departments)
-                {
-                    if (department.Teachers.Count > 0)
-                    {
-                        departments.Add(department.ToDepartment());
-                    }
-                    else
-                    {
-                        foreach (var innerDepartment in department.Departments)
-                        {
-                            departments.Add(innerDepartment);
-                        }
-                    }
-                }
-            }
-            this.departments = departments;
-        }
-
-        return departments;
-    }
-
     #endregion
 
     #region Additional Getters
@@ -239,45 +197,19 @@ public class CistRepository() : ICistRepository
         if (teachersFaculties != null)
         {
             teachers.AddRange(teachersFaculties
-                .SelectMany(f => f.Departments)
+                .SelectMany(f => f.InnerFaculties)
                 .SelectMany(d => d.Teachers));
 
             teachers.AddRange(teachersFaculties
-                .SelectMany(f => f.Departments)
+                .SelectMany(f => f.InnerFaculties)
+                .SelectMany(d => d.InnerInnerFaculties)
+                .SelectMany(d => d.Teachers));
+
+            teachers.AddRange(teachersFaculties
+                .SelectMany(f => f.InnerFaculties)
+                .SelectMany(d => d.InnerInnerFaculties)
                 .SelectMany(d => d.Departments)
                 .SelectMany(d => d.Teachers));
-        }
-
-        return teachers;
-    }
-
-    public async Task<List<Teacher>?> GetTeachers(int departmentId)
-    {
-        if (teachersFaculties == null)
-        {
-            await GetTeachersFacultiesAsync();
-        }
-
-        var teachers = new List<Teacher>();
-
-        if (teachersFaculties != null)
-        {
-            if (teachersFaculties.Any(f => f.Departments.Any(d => d.Id == departmentId)))
-            {
-                teachers.AddRange(teachersFaculties
-                    .SelectMany(f => f.Departments)
-                    .First(d => d.Id == departmentId)
-                    .Teachers);
-            }
-
-            if (teachersFaculties.Any(f => f.Departments.Any(d => d.Departments.Any(d => d.Id == departmentId))))
-            {
-                teachers.AddRange(teachersFaculties
-                    .SelectMany(f => f.Departments)
-                    .SelectMany(d => d.Departments)
-                    .First(d => d.Id == departmentId)
-                    .Teachers);
-            }
         }
 
         return teachers;

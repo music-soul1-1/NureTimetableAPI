@@ -11,11 +11,7 @@ public interface ICistRepository
 
     public Task<List<CistTeachersFaculty>?> GetTeachersFacultiesAsync();
 
-    public Task<List<Department>?> GetTeachersDepartments();
-
     public Task<List<Teacher>?> GetTeachers();
-
-    public Task<List<Teacher>?> GetTeachers(int departmentId);
 
     public Task<List<CistBuilding>?> GetAuditoriesBuildingsAsync();
 
