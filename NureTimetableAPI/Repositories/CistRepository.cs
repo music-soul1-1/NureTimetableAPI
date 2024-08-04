@@ -73,7 +73,7 @@ public class CistRepository() : ICistRepository
 
             // Fixing Cist JSON
             jsonString = jsonString.Trim().Remove(jsonString.Length - 2);
-            jsonString += "]}}";
+            jsonString += "]}]}}";
 
             var data = JsonConvert.DeserializeObject<CistTeachersStructureResponse>(jsonString);
 
