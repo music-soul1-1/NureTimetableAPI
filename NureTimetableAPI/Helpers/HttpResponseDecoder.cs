@@ -9,7 +9,7 @@ namespace NureTimetableAPI.Helpers;
 public class HttpResponseDecoder
 {
     /// <summary>
-    /// Converts the response to a string.
+    /// Converts the response to a string and fixes the JSON.
     /// </summary>
     /// <param name="response"></param>
     /// <param name="encoding">
@@ -22,7 +22,9 @@ public class HttpResponseDecoder
 
         using var stream = await response.Content.ReadAsStreamAsync();
         using var reader = new StreamReader(stream, Encoding.GetEncoding(encoding), true);
-        return await reader.ReadToEndAsync();
+        var json = await reader.ReadToEndAsync();
+
+        return JsonRepairer.RepairJson(json);
     }
 
     /// <summary>
@@ -44,7 +46,6 @@ public class HttpResponseDecoder
         catch(Exception e)
         {
             throw new Exception($"Failed to deserialize response: {e.Message}");
-            //return default;
         }
     }
 }

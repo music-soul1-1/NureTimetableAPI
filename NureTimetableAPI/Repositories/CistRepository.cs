@@ -21,16 +21,14 @@ public class CistRepository() : ICistRepository
     /// </summary>
     private List<CistGroupsFaculty>? groupsFaculties;
 
-    private List<CistTeachersFaculty>? teachersFaculties;
-
     /// <summary>
-    /// Used to store university departments.
+    /// Used to store teachers faculties.
     /// <br>
-    /// Note: this variable is used to temporarily store university structure, 
+    /// Note: this variable is used to temporarily store university structure,
     /// so that it's not fetched from CIST every time.
     /// </br>
     /// </summary>
-    private List<Department>? departments;
+    private List<CistTeachersFaculty>? teachersFaculties;
 
     /// <summary>
     /// Used to store university buildings.
@@ -49,6 +47,11 @@ public class CistRepository() : ICistRepository
         var response = await httpClient.GetAsync("https://cist.nure.ua/ias/app/tt/P_API_GROUP_JSON");
         var cistResponse = await HttpResponseDecoder.DeserializeResponse<CistGroupStructureResponse>(response);
 
+        if (cistResponse == null)
+        {
+            return null;
+        }
+
         groupsFaculties = cistResponse?.University.Faculties;
 
         return groupsFaculties;
@@ -59,34 +62,30 @@ public class CistRepository() : ICistRepository
         var response = await httpClient.GetAsync("https://cist.nure.ua/ias/app/tt/P_API_AUDITORIES_JSON");
         var cistResponse = await HttpResponseDecoder.DeserializeResponse<CistAuditoriesStructureResponse>(response);
 
-        buildings = cistResponse?.University.Buildings;
+        if (cistResponse == null)
+        {
+            return null;
+        }
+
+        buildings = cistResponse.University.Buildings;
 
         return buildings;
     }
 
     public async Task<List<CistTeachersFaculty>?> GetTeachersFacultiesAsync()
     {
-        if (teachersFaculties == null)
+        var response = await httpClient.GetAsync("https://cist.nure.ua/ias/app/tt/P_API_PODR_JSON");
+
+        var data = await HttpResponseDecoder.DeserializeResponse<CistTeachersStructureResponse>(response);
+
+        if (data == null)
         {
-            var response = await httpClient.GetAsync("https://cist.nure.ua/ias/app/tt/P_API_PODR_JSON");
-            var jsonString = await HttpResponseDecoder.ConvertToString(response);
-
-            // Fixing Cist JSON
-            jsonString = jsonString.Trim().Remove(jsonString.Length - 2);
-            jsonString += "]}]}}";
-
-            var data = JsonConvert.DeserializeObject<CistTeachersStructureResponse>(jsonString);
-
-            if (data == null)
-            {
-                return null;
-            }
-
-            teachersFaculties = data.University.Faculties;
-
-            return data.University.Faculties;
+            return null;
         }
-        return teachersFaculties;
+
+        teachersFaculties = data.University.Faculties;
+
+        return data.University.Faculties;
     }
 
     #endregion
@@ -274,18 +273,7 @@ public class CistRepository() : ICistRepository
             throw new NotFoundException($"Schedule for {type} with id {id} not found");
         }
 
-        var responseString = await HttpResponseDecoder.ConvertToString(response);
-        
-        var regex = new System.Text.RegularExpressions.Regex("\"events\":\\s*\\[\\s*\\]\\s*\\}\\s*\\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        var match = regex.Match(responseString);
-
-        if (match.Success)
-        {
-            responseString = responseString.Remove(match.Index, match.Length);
-            responseString = responseString.Insert(match.Index, "\"events\":[]");
-        }
-
-        return JsonConvert.DeserializeObject<CistSchedule>(responseString);
+        return await HttpResponseDecoder.DeserializeResponse<CistSchedule>(response);
     }
 
     public async Task<CistSchedule?> GetCistScheduleAsync(string name, EntityType type = EntityType.Group)

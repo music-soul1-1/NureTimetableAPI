@@ -29,6 +29,7 @@ public class CistTeachersStructureFetch(ICistRepository cistRepository, ISQLRepo
         Console.WriteLine("Fetched teachers faculties successfully!");
 
         await _postgreSQLRepository.FetchTeachersFacultiesAsync(teachersFaculties);
+        Console.WriteLine("Saved teachers faculties to DB successfully!");
 
         Console.ResetColor();
     }
