@@ -9,9 +9,12 @@ public class JsonRepairer
     /// </summary>
     /// <param name="brokenJson"></param>
     /// <returns></returns>
-    public static string RepairJson(string brokenJson)
+    public static string RepairJson(string brokenJson, bool throwErrors = false)
     {
-        var jsonRepair = new JsonRepair();
+        var jsonRepair = new JsonRepair
+        { 
+            ThrowExceptions = throwErrors
+        };
 
         var repairedJson = jsonRepair.Repair(brokenJson);
 

@@ -16,7 +16,7 @@ public class HttpResponseDecoder
     /// Cist API uses WINDOWS-1251 encoding.
     /// </param>
     /// <returns></returns>
-    public async static Task<string> ConvertToString(HttpResponseMessage response, string encoding = "WINDOWS-1251")
+    public async static Task<string> ConvertToString(HttpResponseMessage response, bool repairJson = true, bool throwErrors = false, string encoding = "WINDOWS-1251")
     {
         Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -24,7 +24,15 @@ public class HttpResponseDecoder
         using var reader = new StreamReader(stream, Encoding.GetEncoding(encoding), true);
         var json = await reader.ReadToEndAsync();
 
-        return JsonRepairer.RepairJson(json);
+        if (repairJson)
+        {
+            json = JsonRepairer.RepairJson(json, throwErrors);
+        }
+
+        stream.Dispose();
+        reader.Dispose();
+
+        return json;
     }
 
     /// <summary>
@@ -37,13 +45,32 @@ public class HttpResponseDecoder
     /// </param>
     /// <returns></returns>
     /// <exception cref="Exception"></exception>
-    public async static Task<T?> DeserializeResponse<T>(HttpResponseMessage response, string encoding = "WINDOWS-1251")
+    public async static Task<T?> DeserializeResponse<T>(HttpResponseMessage response, bool repairJson = true, bool throwErrors = false, string encoding = "WINDOWS-1251")
     {
         try
         {
-            return JsonConvert.DeserializeObject<T>(await ConvertToString(response, encoding));
+            return JsonConvert.DeserializeObject<T>(await ConvertToString(response, repairJson, throwErrors, encoding));
         }
         catch(Exception e)
+        {
+            throw new Exception($"Failed to deserialize response: {e.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Deserializes the JSON object to the specified type.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="json"></param>
+    /// <returns></returns>
+    /// <exception cref="Exception"></exception>
+    public static T? DeserializeResponse<T>(string json)
+    {
+        try
+        {
+            return JsonConvert.DeserializeObject<T>(json);
+        }
+        catch (Exception e)
         {
             throw new Exception($"Failed to deserialize response: {e.Message}");
         }
