@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using NureTimetableAPI.Exceptions;
+﻿using NureTimetableAPI.Exceptions;
 using NureTimetableAPI.Helpers;
 using NureTimetableAPI.Models;
 using NureTimetableAPI.Models.Cist;
@@ -273,7 +272,18 @@ public class CistRepository() : ICistRepository
             throw new NotFoundException($"Schedule for {type} with id {id} not found");
         }
 
-        return await HttpResponseDecoder.DeserializeResponse<CistSchedule>(response);
+        var responseString = await HttpResponseDecoder.ConvertToString(response, false);
+
+        var regex = new System.Text.RegularExpressions.Regex("\"events\":\\s*\\[\\s*\\]\\s*\\}\\s*\\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        var match = regex.Match(responseString);
+
+        if (match.Success)
+        {
+            responseString = responseString.Remove(match.Index, match.Length);
+            responseString = responseString.Insert(match.Index, "\"events\":[]");
+        }
+
+        return HttpResponseDecoder.DeserializeResponse<CistSchedule>(responseString);
     }
 
     public async Task<CistSchedule?> GetCistScheduleAsync(string name, EntityType type = EntityType.Group)
