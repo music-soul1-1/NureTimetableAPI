@@ -8,6 +8,8 @@ API is currently hosted for free on [MonsterASP.NET](https://www.monsterasp.net/
 
 🧑🏼‍💻 An **app** for Windows, Android, and Web is available [here](https://github.com/music-soul1-1/nure-timetable).
 
+📚 .NET library also available [here](https://github.com/music-soul1-1/NureTimetableAPI.DotNetLib).
+
 
 📃 Go to [Docs](https://music-soul1-1.github.io/NureTimetableAPI.Docs/) to get started.
 
