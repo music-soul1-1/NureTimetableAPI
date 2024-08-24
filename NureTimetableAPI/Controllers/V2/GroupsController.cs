@@ -9,10 +9,10 @@ namespace NureTimetableAPI.Controllers.V2;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [ApiVersion("2.0")]
-public class GroupsController(ILogger<GroupsController> logger, ISQLRepository postgreRepository) : ControllerBase
+public class GroupsController(ILogger<GroupsController> logger, ISQLRepository sqlRepository) : ControllerBase
 {
     private readonly ILogger<GroupsController> _logger = logger;
-    private readonly ISQLRepository _postgreRepository = postgreRepository;
+    private readonly ISQLRepository _sqlRepository = sqlRepository;
 
     [HttpGet]
     [Route("GetAll")]
@@ -20,7 +20,7 @@ public class GroupsController(ILogger<GroupsController> logger, ISQLRepository p
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetAllGroups()
     {
-        var groups = await _postgreRepository.GetGroupsAsync();
+        var groups = await _sqlRepository.GetGroupsAsync();
 
         if (groups == null)
         {
@@ -36,7 +36,7 @@ public class GroupsController(ILogger<GroupsController> logger, ISQLRepository p
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetGroup(int id)
     {
-        var group = await _postgreRepository.GetGroupAsync(id);
+        var group = await _sqlRepository.GetGroupAsync(id);
 
         if (group == null)
         {
@@ -52,7 +52,7 @@ public class GroupsController(ILogger<GroupsController> logger, ISQLRepository p
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetGroupsByName([FromQuery(Name = "name")] string name)
     {
-        var groups = await _postgreRepository.GetGroupsAsync();
+        var groups = await _sqlRepository.GetGroupsAsync();
 
         if (groups == null)
         {
@@ -70,7 +70,7 @@ public class GroupsController(ILogger<GroupsController> logger, ISQLRepository p
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetAllFaculties()
     {
-        var faculties = await _postgreRepository.GetGroupsFacultiesAsync();
+        var faculties = await _sqlRepository.GetGroupsFacultiesAsync();
 
         if (faculties == null)
         {
@@ -86,7 +86,7 @@ public class GroupsController(ILogger<GroupsController> logger, ISQLRepository p
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetFacultyById(int id)
     {
-        var faculties = await _postgreRepository.GetGroupsFacultiesAsync();
+        var faculties = await _sqlRepository.GetGroupsFacultiesAsync();
 
         if (faculties == null)
         {
@@ -102,7 +102,7 @@ public class GroupsController(ILogger<GroupsController> logger, ISQLRepository p
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetFacultiesByName([FromQuery(Name = "name")] string name)
     {
-        var faculties = await _postgreRepository.GetGroupsFacultiesAsync();
+        var faculties = await _sqlRepository.GetGroupsFacultiesAsync();
 
         if (faculties == null)
         {

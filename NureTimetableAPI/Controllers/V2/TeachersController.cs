@@ -9,10 +9,10 @@ namespace NureTimetableAPI.Controllers.V2;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [ApiVersion("2.0")]
-public class TeachersController(ILogger<TeachersController> logger, ISQLRepository postgreRepository) : ControllerBase
+public class TeachersController(ILogger<TeachersController> logger, ISQLRepository sqlRepository) : ControllerBase
 {
     private readonly ILogger<TeachersController> _logger = logger;
-    private readonly ISQLRepository _postgreRepository = postgreRepository;
+    private readonly ISQLRepository _sqlRepository = sqlRepository;
 
     [HttpGet]
     [Route("GetAll")]
@@ -20,7 +20,7 @@ public class TeachersController(ILogger<TeachersController> logger, ISQLReposito
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetAllTeachers()
     {
-        var teachers = await _postgreRepository.GetTeachersAsync();
+        var teachers = await _sqlRepository.GetTeachersAsync();
 
         if (teachers == null)
         {
@@ -36,7 +36,7 @@ public class TeachersController(ILogger<TeachersController> logger, ISQLReposito
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetTeacherById(int id)
     {
-        var teacher = await _postgreRepository.GetTeacherAsync(id);
+        var teacher = await _sqlRepository.GetTeacherAsync(id);
 
         if (teacher == null)
         {
@@ -52,7 +52,7 @@ public class TeachersController(ILogger<TeachersController> logger, ISQLReposito
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetTeachersByName([FromQuery(Name = "name")] string name)
     {
-        var teachers = await _postgreRepository.GetTeachersAsync();
+        var teachers = await _sqlRepository.GetTeachersAsync();
 
         if (teachers == null)
         {
@@ -71,7 +71,7 @@ public class TeachersController(ILogger<TeachersController> logger, ISQLReposito
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetTeachersFaculties()
     {
-        var faculties = await _postgreRepository.GetTeachersFacultiesAsync();
+        var faculties = await _sqlRepository.GetTeachersFacultiesAsync();
 
         if (faculties == null)
         {
@@ -87,7 +87,7 @@ public class TeachersController(ILogger<TeachersController> logger, ISQLReposito
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetTeachersFacultyById(int id)
     {
-        var faculties = await _postgreRepository.GetTeachersFacultiesAsync();
+        var faculties = await _sqlRepository.GetTeachersFacultiesAsync();
 
         if (faculties == null)
         {
@@ -103,7 +103,7 @@ public class TeachersController(ILogger<TeachersController> logger, ISQLReposito
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetTeachersFacultiesByName([FromQuery(Name = "name")] string name)
     {
-        var faculties = await _postgreRepository.GetTeachersFacultiesAsync();
+        var faculties = await _sqlRepository.GetTeachersFacultiesAsync();
 
         if (faculties == null)
         {

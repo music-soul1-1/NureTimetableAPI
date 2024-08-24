@@ -558,6 +558,32 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
         return auditories?.FirstOrDefault(a => a.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
     }
 
+    public async Task<CombinedEntitiesDto> GetCombinedEntitiesAsync()
+    {
+        CombinedEntitiesDto combinedEntities = new()
+        {
+            Groups = await GetGroupsAsync() ?? [],
+            Teachers = await GetTeachersAsync() ?? [],
+            Auditories = await GetAuditoriesAsync() ?? []
+        };
+
+        return combinedEntities;
+    }
+
+    public async Task<MinimalCombinedEntitiesDto> GetMinimalCombinedEntitiesAsync()
+    {
+        MinimalCombinedEntitiesDto combinedEntities = new()
+        {
+            Groups = await _dbContext.Groups.Select(g => g.ToMinimalGroup()).ToListAsync(),
+
+            Teachers = await _dbContext.Teachers.Select(t => t.ToMinimalTeacher()).ToListAsync(),
+
+            Auditories = await _dbContext.Auditories.Include(a => a.AuditoryTypes).Select(a => a.ToMinimalAuditory()).ToListAsync()
+        };
+
+        return combinedEntities;
+    }
+
     #endregion
 
     #region Schedule

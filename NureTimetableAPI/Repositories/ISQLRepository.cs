@@ -167,6 +167,18 @@ public interface ISQLRepository
     /// <returns></returns>
     public Task<AuditoryDto?> GetAuditoryAsync(string name);
 
+    /// <summary>
+    /// Gets a list of groups, teachers and auditories in a <see cref="CombinedEntitiesDto"/>.
+    /// </summary>
+    /// <returns></returns>
+    public Task<CombinedEntitiesDto> GetCombinedEntitiesAsync();
+
+    /// <summary>
+    /// Gets a list of minimal groups, teachers and auditories in a <see cref="MinimalCombinedEntitiesDto"/>.
+    /// </summary>
+    /// <returns></returns>
+    public Task<MinimalCombinedEntitiesDto> GetMinimalCombinedEntitiesAsync();
+
     #endregion
 
     #endregion

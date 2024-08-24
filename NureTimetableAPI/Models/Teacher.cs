@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NureTimetableAPI.Models.Domain;
+using NureTimetableAPI.Models.Dto;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -26,4 +27,14 @@ public class Teacher
     public ScheduleFetchLog? ScheduleFetchLog { get; set; }
 
     public List<LessonDomain> Lessons { get; set; } = [];
+
+    public MinimalTeacher ToMinimalTeacher()
+    {
+        return new MinimalTeacher()
+        {
+            Id = TeacherId,
+            ShortName = ShortName,
+            FullName = FullName,
+        };
+    }
 }

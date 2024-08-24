@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using NureTimetableAPI.Models.Dto;
+using System.ComponentModel.DataAnnotations;
 
 namespace NureTimetableAPI.Models.Domain;
 
@@ -24,4 +25,16 @@ public class AuditoryDomain
     public ScheduleFetchLog? ScheduleFetchLog { get; set; }
 
     public List<LessonDomain> Lessons { get; set; } = [];
+
+    public MinimalAuditory ToMinimalAuditory()
+    {
+        return new MinimalAuditory
+        {
+            Id = AuditoryId,
+            Name = ShortName,
+            Floor = Floor ?? 0,
+            HasPower = HasPower,
+            AuditoryTypes = AuditoryTypes.Select(at => at.ToDto()).ToList(),
+        };
+    }
 }
