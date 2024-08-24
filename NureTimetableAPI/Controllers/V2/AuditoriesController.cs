@@ -9,10 +9,10 @@ namespace NureTimetableAPI.Controllers.V2;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [ApiVersion("2.0")]
-public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepository postgreRepository) : ControllerBase
+public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepository sqlRepository) : ControllerBase
 {
     private readonly ILogger<AuditoriesController> _logger = logger;
-    private readonly ISQLRepository _postgreRepository = postgreRepository;
+    private readonly ISQLRepository _sqlRepository = sqlRepository;
 
     [HttpGet]
     [Route("GetAll")]
@@ -20,7 +20,7 @@ public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepo
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetAllAuditories()
     {
-        var auditories = await _postgreRepository.GetAuditoriesAsync();
+        var auditories = await _sqlRepository.GetAuditoriesAsync();
 
         if (auditories == null)
         {
@@ -36,7 +36,7 @@ public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepo
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetAuditory(int id)
     {
-        var auditory = await _postgreRepository.GetAuditoryAsync(id);
+        var auditory = await _sqlRepository.GetAuditoryAsync(id);
 
         if (auditory == null)
         {
@@ -52,7 +52,7 @@ public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepo
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetAuditoriesByName([FromQuery(Name = "name")] string name)
     {
-        var auditories = await _postgreRepository.GetAuditoriesAsync();
+        var auditories = await _sqlRepository.GetAuditoriesAsync();
 
         if (auditories == null)
         {
@@ -70,7 +70,7 @@ public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepo
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetAllBuildings()
     {
-        var buildings = await _postgreRepository.GetBuildingsAsync();
+        var buildings = await _sqlRepository.GetBuildingsAsync();
 
         if (buildings == null)
         {
@@ -86,7 +86,7 @@ public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepo
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetBuildingById(string id)
     {
-        var buildings = await _postgreRepository.GetBuildingsAsync();
+        var buildings = await _sqlRepository.GetBuildingsAsync();
 
         if (buildings == null)
         {
@@ -102,7 +102,7 @@ public class AuditoriesController(ILogger<AuditoriesController> logger, ISQLRepo
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> GetBuildingsByName([FromQuery(Name = "name")] string name)
     {
-        var buildings = await _postgreRepository.GetBuildingsAsync();
+        var buildings = await _sqlRepository.GetBuildingsAsync();
 
         if (buildings == null)
         {

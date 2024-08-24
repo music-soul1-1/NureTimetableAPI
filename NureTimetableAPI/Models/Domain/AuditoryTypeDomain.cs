@@ -1,4 +1,6 @@
-﻿namespace NureTimetableAPI.Models.Domain;
+﻿using NureTimetableAPI.Models.Dto;
+
+namespace NureTimetableAPI.Models.Domain;
 
 public class AuditoryTypeDomain
 {
@@ -10,4 +12,13 @@ public class AuditoryTypeDomain
 
     // Navigation property
     public List<AuditoryDomain> Auditories { get; set; } = [];
+
+    public AuditoryTypeDto ToDto()
+    {
+        return new AuditoryTypeDto
+        {
+            Id = AuditoryTypeId,
+            Name = Name,
+        };
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using NureTimetableAPI.Models.Domain;
+using NureTimetableAPI.Models.Dto;
 using System.ComponentModel.DataAnnotations;
 
 
@@ -23,4 +24,13 @@ public class Group
     public ScheduleFetchLog? ScheduleFetchLog { get; set; }
 
     public List<LessonDomain> Lessons { get; set; } = [];
+
+    public MinimalGroup ToMinimalGroup()
+    {
+        return new MinimalGroup
+        {
+            Id = GroupId,
+            Name = Name,
+        };
+    }
 }

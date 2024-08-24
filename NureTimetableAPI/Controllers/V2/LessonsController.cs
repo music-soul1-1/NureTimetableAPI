@@ -15,11 +15,11 @@ namespace NureTimetableAPI.Controllers.V2;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiController]
 [ApiVersion("2.0")]
-public class LessonsController(ILogger<LessonsController> logger, ISQLRepository repository, ICistRepository cist) : ControllerBase
+public class LessonsController(ILogger<LessonsController> logger, ISQLRepository sqlRepository, ICistRepository cistRepository) : ControllerBase
 {
     private readonly ILogger<LessonsController> _logger = logger;
-    private readonly ISQLRepository repository = repository;
-    private readonly ICistRepository cist = cist;
+    private readonly ISQLRepository _sqlRepository = sqlRepository;
+    private readonly ICistRepository _cistRepository = cistRepository;
 
     [HttpGet]
     [Route("GetById")]
@@ -39,7 +39,7 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
             {
                 return BadRequest("Please provide a valid Id");
             }
-            var lessons = await repository.GetLessonsAsync(id, type, startTime, endTime);
+            var lessons = await _sqlRepository.GetLessonsAsync(id, type, startTime, endTime);
 
             var fetchJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
                 .FirstOrDefault(j => j.Id == $"update-{type.ToString().ToLower()}-with-id-{id}");
@@ -52,14 +52,14 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
                 {
                     throw new Exception($"Please wait {lastJob.LastExecution.Value.Second} seconds, and then try again");
                 }
-                var cistLessons = await cist.GetCistScheduleAsync(id, type);
+                var cistLessons = await _cistRepository.GetCistScheduleAsync(id, type);
 
                 if (cistLessons == null)
                 {
                     throw new NotFoundException($"Cist lessons not found for {type} with id {id}");
                 }
 
-                lessons = await repository.FetchSchedule(id, cistLessons, type, startTime, endTime);
+                lessons = await _sqlRepository.FetchSchedule(id, cistLessons, type, startTime, endTime);
 
                 RecurringJob.AddOrUpdate<ScheduleFetch>(
                     $"update-{type.ToString().ToLower()}-with-id-{id}",
@@ -104,9 +104,9 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
 
         var id = type switch
         {
-            EntityType.Group => (await repository.GetGroupAsync(name))?.Id,
-            EntityType.Teacher => (await repository.GetTeacherAsync(name))?.Id,
-            EntityType.Auditory => (await repository.GetAuditoryAsync(name))?.Id,
+            EntityType.Group => (await _sqlRepository.GetGroupAsync(name))?.Id,
+            EntityType.Teacher => (await _sqlRepository.GetTeacherAsync(name))?.Id,
+            EntityType.Auditory => (await _sqlRepository.GetAuditoryAsync(name))?.Id,
             _ => throw new ArgumentException($"Invalid entity type: {type}"),
         } ?? 0;
 
