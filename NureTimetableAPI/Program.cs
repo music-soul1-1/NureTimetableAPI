@@ -17,7 +17,7 @@ builder.Services.AddHangfire(config =>
     config.UseSimpleAssemblyNameTypeSerializer();
     config.UseRecommendedSerializerSettings();
 
-    GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 1, DelaysInSeconds = [60] });
+    GlobalJobFilters.Filters.Add(new AutomaticRetryAttribute { Attempts = 2, DelaysInSeconds = [120] });
 });
 builder.Services.AddHangfireServer();
 
@@ -158,15 +158,15 @@ app.UseHangfireDashboard("/hangfire",
 
 RecurringJob.AddOrUpdate<CistGroupsStructureFetch>("cist-groups-structure-fetch",
             job => job.Execute(),
-            Cron.Weekly(DayOfWeek.Sunday, 1, 30));
+            Cron.Monthly(1, 1, 30));
 
 RecurringJob.AddOrUpdate<CistTeachersStructureFetch>("cist-teachers-structure-fetch",
             job => job.Execute(),
-            Cron.Weekly(DayOfWeek.Sunday, 1, 32));
+            Cron.Monthly(1, 1, 32));
 
 RecurringJob.AddOrUpdate<CistBuildingsStructureFetch>("cist-buildings-structure-fetch",
             job => job.Execute(),
-            Cron.Weekly(DayOfWeek.Sunday, 1, 34));
+            Cron.Monthly(1, 1, 34));
 
 RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive-1",
             job => job.Execute(),
@@ -175,5 +175,13 @@ RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive-1",
 RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive-2",
             job => job.Execute(),
             Cron.Hourly(0));
+
+RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive-3",
+            job => job.Execute(),
+            Cron.Hourly(15));
+
+RecurringJob.AddOrUpdate<KeepAliveJob>("keep-alive-4",
+            job => job.Execute(),
+            Cron.Hourly(45));
 
 app.Run();
