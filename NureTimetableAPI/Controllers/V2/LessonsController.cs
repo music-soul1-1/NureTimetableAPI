@@ -46,11 +46,11 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
             var lastJob = JobStorage.Current.GetConnection().GetRecurringJobs().ToList()
                 .OrderByDescending(j => j.Cron).FirstOrDefault(j => !j.Id.Contains("keep-alive"));
 
-            if (fetchJob == null || lessons == null)
+            if (fetchJob == null || lessons?.Count == 0)
             {
-                if (lastJob != null && lastJob.LastExecution != null && lastJob.LastExecution > DateTime.Now.AddSeconds(30))
+                if (lastJob?.LastExecution > DateTime.Now.AddSeconds(30))
                 {
-                    throw new Exception($"Please wait {lastJob.LastExecution.Value.Second} seconds, and then try again");
+                    throw new Exception($"Please wait 30 seconds, and then try again");
                 }
                 var cistLessons = await _cistRepository.GetCistScheduleAsync(id, type);
 
@@ -60,13 +60,12 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
                 }
 
                 lessons = await _sqlRepository.FetchSchedule(id, cistLessons, type, startTime, endTime);
+                var jobExecutionTime = lastJob?.NextExecution != null ? lastJob.NextExecution.Value.AddMinutes(1) : DateTime.Now;
 
                 RecurringJob.AddOrUpdate<ScheduleFetch>(
                     $"update-{type.ToString().ToLower()}-with-id-{id}",
                     job => job.Execute(id, type),
-                    (lastJob != null && lastJob.NextExecution != null) ?
-                    Cron.Daily(lastJob.NextExecution.Value.Hour, lastJob.NextExecution.Value.Minute + 1) :
-                    Cron.Daily(DateTime.Now.Hour, DateTime.Now.Minute)
+                    Cron.Daily(jobExecutionTime.Hour, jobExecutionTime.Minute)
                 );
 
                 return Ok(lessons);
