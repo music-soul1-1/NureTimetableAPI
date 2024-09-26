@@ -80,7 +80,7 @@ public class LessonsController(ILogger<LessonsController> logger, ISQLRepository
         }
         catch (Exception ex)
         {
-            return StatusCode(500, new ResponseMessage($"An error occupied while getting lessons for {type} with id {id}. Exception: {ex.Message}", 500));
+            return StatusCode(500, new ResponseMessage($"An error occupied while getting lessons for {type} with id {id}. Exception: {ex}", 500));
         }
     }
 

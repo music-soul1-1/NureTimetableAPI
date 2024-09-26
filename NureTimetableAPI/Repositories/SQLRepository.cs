@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NureTimetableAPI.Contexts;
+using NureTimetableAPI.Exceptions;
 using NureTimetableAPI.Models;
 using NureTimetableAPI.Models.Cist;
 using NureTimetableAPI.Models.Domain;
@@ -103,7 +104,7 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
             await transaction.RollbackAsync();
             Console.WriteLine($"Error while fetching schedule:\n {ex.Message}");
 
-            return null;
+            throw new SQLRepositoryException($"Error while fetching schedule: {ex}");
         }
     }
 
@@ -722,7 +723,8 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
         if (types.Count != 20)
         {
             _dbContext.LessonTypes.RemoveRange(types);
-            _dbContext.LessonTypes.AddRange(cistSchedule.Types);
+            types = cistSchedule.Types;
+            _dbContext.LessonTypes.AddRange(types);
 
             _dbContext.SaveChanges();
         }
@@ -755,10 +757,10 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
             lessonsDomain.Add(new LessonDomain
             {
                 LessonId = _event.SubjectId,
-                Brief = cistSchedule.Subjects.FirstOrDefault(subject => subject.Id == _event.SubjectId)?.Brief,
-                Title = cistSchedule.Subjects.FirstOrDefault(subject => subject.Id == _event.SubjectId)?.Title,
-                TypeId = types.FirstOrDefault(t => t.TypeId == _event.Type).Id,
-                Type = types.FirstOrDefault(t => t.TypeId == _event.Type),
+                Brief = cistSchedule.Subjects.First(subject => subject.Id == _event.SubjectId)?.Brief ?? "Brief",
+                Title = cistSchedule.Subjects.First(subject => subject.Id == _event.SubjectId)?.Title ?? "Title",
+                TypeId = types.First(t => t.TypeId == _event.Type).Id,
+                Type = types.First(t => t.TypeId == _event.Type),
                 StartTime = _event.StartTime,
                 EndTime = _event.EndTime,
                 NumberPair = _event.NumberPair,

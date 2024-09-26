@@ -79,7 +79,10 @@ builder.Services.AddScoped<ISQLRepository, SQLRepository>();
 
 builder.Services.AddDbContext<NureTimetableDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetSection("ConnectionStringProduction").Value);
+    options.UseSqlServer(builder.Configuration.GetSection("ConnectionStringProduction").Value, (options) =>
+    {
+        options.CommandTimeout(180);
+    });
 });
 
 var app = builder.Build();
