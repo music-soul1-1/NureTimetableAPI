@@ -82,6 +82,7 @@ builder.Services.AddDbContext<NureTimetableDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetSection("ConnectionStringProduction").Value, (options) =>
     {
         options.CommandTimeout(180);
+        options.EnableRetryOnFailure(3);
     });
 });
 
