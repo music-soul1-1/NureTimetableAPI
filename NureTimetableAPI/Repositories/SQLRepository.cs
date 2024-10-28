@@ -17,28 +17,21 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
 
     public async Task FetchGroupsFacultiesAsync(List<CistGroupsFaculty> p_groupsFaculties)
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
         try
         {
             ArgumentNullException.ThrowIfNull(p_groupsFaculties, nameof(p_groupsFaculties));
 
             await DeleteAllGroupsFacultiesFromDb();
             await SaveGroupsFacultiesToDbAsync(p_groupsFaculties);
-
-            await transaction.CommitAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await transaction.RollbackAsync();
-            throw;
+            throw new SQLRepositoryException("Error while fetching groups faculties.", ex);
         }
     }
 
     public async Task FetchTeachersFacultiesAsync(List<CistTeachersFaculty> p_teachersFaculties)
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
         try
         {
             ArgumentNullException.ThrowIfNull(p_teachersFaculties, nameof(p_teachersFaculties));
@@ -46,48 +39,36 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
             await DeleteAllTeachersFacultiesFromDb();
 
             await SaveTeachersFacultiesToDbAsync(p_teachersFaculties);
-
-            await transaction.CommitAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await transaction.RollbackAsync();
-            throw;
+            throw new SQLRepositoryException("Error while fetching teachers faculties.", ex);
         }
     }
 
     public async Task FetchBuildingsAsync(List<CistBuilding> p_buildings)
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
         try
         {
             ArgumentNullException.ThrowIfNull(p_buildings, nameof(p_buildings));
 
             await DeleteAllBuildingsFromDb();
             await SaveBuildingsToDbAsync(p_buildings);
-
-            await transaction.CommitAsync();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            await transaction.RollbackAsync();
-            throw;
+            throw new SQLRepositoryException($"Error while fetching buildings.", ex);
         }
     }
 
     public async Task<List<LessonDto>?> FetchSchedule(int id, CistSchedule cistSchedule, EntityType entityType, int? startTime = null, int? endTime = null)
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
         try
         {
             ArgumentNullException.ThrowIfNull(cistSchedule, nameof(cistSchedule));
 
             await DeleteLessonsFromDbAsync(id, entityType);
             var lessons = await SaveLessonsToDbAsync(id, cistSchedule, entityType);
-
-            await transaction.CommitAsync();
 
             if (lessons == null)
             {
@@ -101,21 +82,16 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
             Console.WriteLine($"Error while fetching schedule:\n {ex.Message}");
 
-            throw new SQLRepositoryException($"Error while fetching schedule: {ex}");
+            throw new SQLRepositoryException($"Error while fetching schedule.", ex);
         }
     }
 
     public async Task<List<LessonDto>?> FetchSchedule(string name, CistSchedule cistSchedule, EntityType entityType, int? startTime = null, int? endTime = null)
     {
-        using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
         try
         {
-            ArgumentNullException.ThrowIfNull(cistSchedule, nameof(cistSchedule));
-
             var id = entityType switch
             {
                 EntityType.Group => await _dbContext.Groups.Where(g => g.Name == name).Select(g => g.GroupId).FirstOrDefaultAsync(),
@@ -124,27 +100,13 @@ public class SQLRepository(NureTimetableDbContext dbContext) : ISQLRepository
                 _ => throw new ArgumentException($"Invalid entity type: {entityType}"),
             };
 
-            await DeleteLessonsFromDbAsync(id, entityType);
-            var lessons = await SaveLessonsToDbAsync(id, cistSchedule, entityType);
-
-            await transaction.CommitAsync();
-
-            if (lessons == null)
-            {
-                return null;
-            }
-
-            lessons.RemoveAll(l => startTime != null && l.StartTime <= startTime);
-            lessons.RemoveAll(l => endTime != null && l.EndTime >= endTime);
+            var lessons = await FetchSchedule(id, cistSchedule, entityType, startTime, endTime);
 
             return lessons;
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
-            Console.WriteLine($"Error while fetching schedule for {entityType} with name {name}:\n {ex.Message}");
-
-            return null;
+            throw new SQLRepositoryException($"Error while fetching schedule.", ex);
         }
     }
 
